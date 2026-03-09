@@ -1,95 +1,63 @@
-import fraudDetectionService from '../services/fraudDetectionService.js'
-import TransactionService from '../services/transactionService.js'
+import { decodeQR, parseUPI } from "../utils/helpers.js"
 
-export class AnalysisController {
-  /**
-   * Analyze QR Code
-   * POST /api/analysis/analyze
-   */
-  static async analyzeQR(req, res) {
-    try {
-      const { qrData } = req.body
+export const analyzeQR = async (req, res) => {
+  try {
 
-      if (!qrData) {
-        return res.status(400).json({ error: 'QR data is required' })
-      }
-
-      // Parse QR data
-      const parsedData = fraudDetectionService.constructor.parseQRData(qrData)
-      if (!parsedData) {
-        return res.status(400).json({ error: 'Invalid QR data format' })
-      }
-
-      // Analyze fraud risk
-      const analysisResult = fraudDetectionService.analyzeQRData(parsedData)
-
-      // Create transaction record
-      const metadata = {
-        userAgent: req.headers['user-agent'],
-        ipAddress: req.ip,
-      }
-
-      const transaction = await TransactionService.createTransaction(analysisResult, metadata)
-
-      // Return result
-      res.json({
-        success: true,
-        transactionId: transaction._id,
-        ...analysisResult,
-        timestamp: new Date(),
-      })
-    } catch (error) {
-      console.error('Analysis error:', error)
-      res.status(500).json({
-        error: error.message || 'Analysis failed',
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "QR image not uploaded"
       })
     }
-  }
 
-  /**
-   * Get analysis statistics
-   * GET /api/analysis/stats
-   */
-  static async getStatistics(req, res) {
-    try {
-      const stats = await TransactionService.getStatistics()
-      res.json(stats)
-    } catch (error) {
-      console.error('Stats error:', error)
-      res.status(500).json({ error: error.message })
+    const imagePath = req.file.path
+
+    const qrData = await decodeQR(imagePath)
+
+    const paymentData = parseUPI(qrData)
+
+    if (!paymentData) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid QR code"
+      })
     }
-  }
 
-  /**
-   * Get risk breakdown for dashboard
-   * GET /api/analysis/breakdown
-   */
-  static async getRiskBreakdown(req, res) {
-    try {
-      const { days = 30 } = req.query
-      const startDate = new Date()
-      startDate.setDate(startDate.getDate() - parseInt(days))
+    const { upiId, merchantName, amount } = paymentData
 
-      // Simulated breakdown data - in production, aggregate from MongoDB
-      const breakdown = {
-        timeline: [
-          { date: '2024-03-05', green: 45, yellow: 12, red: 3 },
-          { date: '2024-03-06', green: 52, yellow: 15, red: 5 },
-          { date: '2024-03-07', green: 38, yellow: 18, red: 7 },
-        ],
-        topRiskFactors: [
-          { factor: 'Unknown Merchant', count: 25 },
-          { factor: 'Suspicious Pattern', count: 18 },
-          { factor: 'Blacklisted UPI', count: 12 },
-        ],
-      }
+    let riskScore = 0
 
-      res.json(breakdown)
-    } catch (error) {
-      console.error('Breakdown error:', error)
-      res.status(500).json({ error: error.message })
+    if (amount > 5000) riskScore += 30
+    if (!merchantName) riskScore += 20
+
+    let riskLevel = "Green"
+    let transactionApproved = true
+
+    if (riskScore > 60) {
+      riskLevel = "Red"
+      transactionApproved = false
+    } else if (riskScore > 30) {
+      riskLevel = "Yellow"
     }
+
+    res.json({
+      success: true,
+      upiId,
+      merchantName,
+      amount,
+      riskScore,
+      riskLevel,
+      transactionApproved
+    })
+
+  } catch (error) {
+
+    console.error("Analysis Error:", error)
+
+    res.status(500).json({
+      success: false,
+      message: "Error analyzing transaction"
+    })
+
   }
 }
-
-export default AnalysisController

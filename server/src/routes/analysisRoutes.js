@@ -1,15 +1,20 @@
-import express from 'express'
-import AnalysisController from '../controllers/analysisController.js'
+import express from "express"
+import multer from "multer"
+import { analyzeQR } from "../controllers/analysisController.js"
 
 const router = express.Router()
 
-// POST /api/analysis/analyze - Analyze QR code
-router.post('/analyze', AnalysisController.analyzeQR)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/")
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname)
+  }
+})
 
-// GET /api/analysis/stats - Get statistics
-router.get('/stats', AnalysisController.getStatistics)
+const upload = multer({ storage })
 
-// GET /api/analysis/breakdown - Get risk breakdown
-router.get('/breakdown', AnalysisController.getRiskBreakdown)
+router.post("/analysis", upload.single("qrImage"), analyzeQR)
 
 export default router
