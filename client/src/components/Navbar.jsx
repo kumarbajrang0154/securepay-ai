@@ -1,36 +1,65 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
+
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const logout = () => {
+
+    localStorage.removeItem("userMobile");
+
+    navigate("/");
+
+  };
+
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold">
-          SecurePay AI
-        </Link>
 
-        <div className="flex gap-6">
-          <Link to="/" className="hover:text-gray-200">
-            Home
-          </Link>
+    <div className="flex justify-between items-center p-4 bg-white shadow">
 
-          <Link to="/scan" className="hover:text-gray-200">
-            Scan QR
-          </Link>
+      <h1 className="text-lg font-bold">
+        SecurePay AI
+      </h1>
 
-          <Link to="/upload" className="hover:text-gray-200">
-            Upload QR
-          </Link>
+      <div className="relative">
 
-          <Link to="/history" className="hover:text-gray-200">
-            History
-          </Link>
+        <div
+          onClick={() => setOpen(!open)}
+          className="flex items-center cursor-pointer gap-2 bg-gray-100 px-3 py-1 rounded"
+        >
 
-          <Link to="/report" className="hover:text-gray-200">
-            Report Fraud
-          </Link>
+          <img
+            src="https://i.pravatar.cc/40"
+            alt="user"
+            className="w-8 h-8 rounded-full"
+          />
+
+          <span className="text-sm font-medium">
+            Rahul
+          </span>
+
         </div>
+
+        {open && (
+
+          <div className="absolute right-0 mt-2 bg-white shadow rounded w-32">
+
+            <button
+              onClick={logout}
+              className="w-full text-left px-4 py-2 hover:bg-gray-100"
+            >
+              Logout
+            </button>
+
+          </div>
+
+        )}
+
       </div>
-    </nav>
+
+    </div>
+
   );
 }
 

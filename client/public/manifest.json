@@ -1,7 +1,6 @@
 {
   "name": "SecurePay AI",
   "short_name": "SecurePay",
-  "description": "UPI QR Fraud Detection System",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
