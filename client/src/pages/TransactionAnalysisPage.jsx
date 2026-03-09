@@ -5,13 +5,16 @@ import { AnalysisContext } from "../context/AnalysisContext";
 import { analyzeTransaction } from "../services/apiService";
 
 function TransactionAnalysisPage() {
+
   const { qrData, setTransactionDetails, setRiskResult } =
     useContext(AnalysisContext);
 
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   const parseUPIData = (qr) => {
+
     const params = new URLSearchParams(qr.split("?")[1]);
 
     return {
@@ -20,17 +23,21 @@ function TransactionAnalysisPage() {
       amount: params.get("am") || "",
       currency: params.get("cu") || "INR",
     };
+
   };
 
   useEffect(() => {
+
     if (!qrData) {
       navigate("/");
       return;
     }
 
     const analyze = async () => {
+
       try {
-        const parsedData = parseUPIData(qrData);
+
+        const parsedData = parseUPIData(qr);
 
         setTransactionDetails(parsedData);
 
@@ -43,20 +50,26 @@ function TransactionAnalysisPage() {
         setTimeout(() => {
           navigate("/result");
         }, 1500);
+
       } catch (error) {
+
         console.error(error);
         alert("Error analyzing transaction");
+
       }
+
     };
 
     analyze();
+
   }, [qrData]);
 
   return (
+
     <div className="flex flex-col items-center justify-center py-20">
 
       <h2 className="text-2xl font-bold mb-6">
-        Analyzing Transaction...
+        AI analyzing transaction...
       </h2>
 
       {loading && (
@@ -64,6 +77,7 @@ function TransactionAnalysisPage() {
       )}
 
     </div>
+
   );
 }
 

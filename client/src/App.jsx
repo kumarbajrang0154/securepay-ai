@@ -1,8 +1,10 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import InstallPWA from "./components/InstallPWA";
 
+import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import QRScannerPage from "./pages/QRScannerPage";
 import QRUploadPage from "./pages/QRUploadPage";
@@ -11,16 +13,22 @@ import RiskResultPage from "./pages/RiskResultPage";
 import ReportFraudPage from "./pages/ReportFraudPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 
+import { AnalysisProvider } from "./context/AnalysisContext";
+
 function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <AnalysisProvider>
+      <Router>
 
-      <Navbar />
+        {/* Install App Button */}
+        <InstallPWA />
 
-      <div className="flex-grow container mx-auto px-4 py-6">
+        {/* Navbar */}
+        <Navbar />
 
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/scan" element={<QRScannerPage />} />
           <Route path="/upload" element={<QRUploadPage />} />
           <Route path="/analysis" element={<TransactionAnalysisPage />} />
@@ -29,11 +37,11 @@ function App() {
           <Route path="/history" element={<TransactionHistoryPage />} />
         </Routes>
 
-      </div>
+        {/* Footer */}
+        <Footer />
 
-      <Footer />
-
-    </div>
+      </Router>
+    </AnalysisProvider>
   );
 }
 

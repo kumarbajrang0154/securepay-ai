@@ -5,22 +5,33 @@ import jsQR from "jsqr";
 import { AnalysisContext } from "../context/AnalysisContext";
 
 function QRUploadPage() {
+
   const [imagePreview, setImagePreview] = useState(null);
+
   const { setQrData } = useContext(AnalysisContext);
+
   const navigate = useNavigate();
 
   const handleFileUpload = (event) => {
+
     const file = event.target.files[0];
+
     if (!file) return;
+
+    setImagePreview(URL.createObjectURL(file));
 
     const reader = new FileReader();
 
     reader.onload = function () {
+
       const img = new Image();
+
       img.src = reader.result;
 
       img.onload = function () {
+
         const canvas = document.createElement("canvas");
+
         const ctx = canvas.getContext("2d");
 
         canvas.width = img.width;
@@ -33,22 +44,32 @@ function QRUploadPage() {
         const code = jsQR(imageData.data, imageData.width, imageData.height);
 
         if (code) {
+
           setQrData(code.data);
+
           navigate("/analysis");
+
         } else {
-          alert("No QR code detected in the image.");
+
+          alert("No QR code detected.");
+
         }
+
       };
+
     };
 
     reader.readAsDataURL(file);
-    setImagePreview(URL.createObjectURL(file));
+
   };
 
   return (
+
     <div className="flex flex-col items-center py-10">
 
-      <h2 className="text-2xl font-bold mb-6">Upload QR Image</h2>
+      <h2 className="text-2xl font-bold mb-6">
+        Upload QR Image
+      </h2>
 
       <input
         type="file"
@@ -66,6 +87,7 @@ function QRUploadPage() {
       )}
 
     </div>
+
   );
 }
 
