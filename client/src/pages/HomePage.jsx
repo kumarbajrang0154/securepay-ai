@@ -1,37 +1,45 @@
-import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import { QrReader } from "react-qr-reader";
 
 function HomePage() {
+
   return (
-    <div className="flex flex-col items-center justify-center text-center py-20">
 
-      <h1 className="text-4xl font-bold text-gray-800 mb-6">
-        SecurePay AI
-      </h1>
+    <div>
 
-      <p className="text-lg text-gray-600 max-w-xl mb-10">
-        AI-powered protection against fraudulent UPI QR codes. 
-        Scan or upload a QR code to analyze transaction risk before making a payment.
-      </p>
+      <Navbar />
 
-      <div className="flex gap-6">
+      <div className="flex flex-col items-center mt-10">
 
-        <Link
-          to="/scan"
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-        >
-          Scan QR Code
-        </Link>
+        <div className="w-80">
 
-        <Link
-          to="/upload"
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+          <QrReader
+            constraints={{ facingMode: "environment" }}
+            onResult={(result) => {
+
+              if (result) {
+
+                console.log(result?.text);
+
+              }
+
+            }}
+            style={{ width: "100%" }}
+          />
+
+        </div>
+
+        <button
+          onClick={() => window.location.href="/upload"}
+          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded"
         >
           Upload QR Image
-        </Link>
+        </button>
 
       </div>
 
     </div>
+
   );
 }
 

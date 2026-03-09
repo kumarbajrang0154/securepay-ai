@@ -1,39 +1,29 @@
 import { Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-
+import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
-import QRScannerPage from "./pages/QRScannerPage";
 import QRUploadPage from "./pages/QRUploadPage";
 import TransactionAnalysisPage from "./pages/TransactionAnalysisPage";
-import RiskResultPage from "./pages/RiskResultPage";
-import ReportFraudPage from "./pages/ReportFraudPage";
-import TransactionHistoryPage from "./pages/TransactionHistoryPage";
+
+import InstallPWA from "./components/InstallPWA";
 
 function App() {
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <>
 
-      <Navbar />
+      <InstallPWA />
 
-      <div className="flex-grow container mx-auto px-4 py-6">
+      <Routes>
 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/scan" element={<QRScannerPage />} />
-          <Route path="/upload" element={<QRUploadPage />} />
-          <Route path="/analysis" element={<TransactionAnalysisPage />} />
-          <Route path="/result" element={<RiskResultPage />} />
-          <Route path="/report" element={<ReportFraudPage />} />
-          <Route path="/history" element={<TransactionHistoryPage />} />
-        </Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/upload" element={<QRUploadPage />} />
+        <Route path="/analysis" element={<TransactionAnalysisPage />} />
 
-      </div>
+      </Routes>
 
-      <Footer />
-
-    </div>
+    </>
   );
 }
 
