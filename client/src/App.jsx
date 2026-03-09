@@ -1,36 +1,40 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import HomePage from './pages/HomePage'
-import QRScannerPage from './pages/QRScannerPage'
-import QRUploadPage from './pages/QRUploadPage'
-import RiskResultPage from './pages/RiskResultPage'
-import TransactionHistoryPage from './pages/TransactionHistoryPage'
-import ReportFraudPage from './pages/ReportFraudPage'
-import TransactionAnalysisPage from './pages/TransactionAnalysisPage'
+import { Routes, Route } from "react-router-dom";
 
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+
+import HomePage from "./pages/HomePage";
+import QRScannerPage from "./pages/QRScannerPage";
+import QRUploadPage from "./pages/QRUploadPage";
+import TransactionAnalysisPage from "./pages/TransactionAnalysisPage";
+import RiskResultPage from "./pages/RiskResultPage";
+import ReportFraudPage from "./pages/ReportFraudPage";
+import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/scanner" element={<QRScannerPage />} />
-            <Route path="/upload" element={<QRUploadPage />} />
-            <Route path="/result" element={<RiskResultPage />} />
-            <Route path="/history" element={<TransactionHistoryPage />} />
-            <Route path="/report" element={<ReportFraudPage />} />
-            <Route path="/analysis" element={<TransactionAnalysisPage />} />
-          </Routes>
-        </main>
-        <Footer />
+    <div className="min-h-screen flex flex-col bg-gray-100">
+
+      <Navbar />
+
+      <div className="flex-grow container mx-auto px-4 py-6">
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/scan" element={<QRScannerPage />} />
+          <Route path="/upload" element={<QRUploadPage />} />
+          <Route path="/analysis" element={<TransactionAnalysisPage />} />
+          <Route path="/result" element={<RiskResultPage />} />
+          <Route path="/report" element={<ReportFraudPage />} />
+          <Route path="/history" element={<TransactionHistoryPage />} />
+        </Routes>
+
       </div>
-    </Router>
-  )
+
+      <Footer />
+
+    </div>
+  );
 }
 
-export default App
+export default App;

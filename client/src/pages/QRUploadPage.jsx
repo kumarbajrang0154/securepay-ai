@@ -1,102 +1,72 @@
-import React, { useState, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AnalysisContext } from '../context/AnalysisContext'
-import { analyzeQR } from '../services/apiService'
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import jsQR from "jsqr";
 
-export default function QRUploadPage() {
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [preview, setPreview] = useState(null)
-  const navigate = useNavigate()
-  const { setResult, setLoading, setErrorMessage } = useContext(AnalysisContext)
+import { AnalysisContext } from "../context/AnalysisContext";
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setSelectedFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreview(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+function QRUploadPage() {
+  const [imagePreview, setImagePreview] = useState(null);
+  const { setQrData } = useContext(AnalysisContext);
+  const navigate = useNavigate();
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      setErrorMessage('Please select an image first')
-      return
-    }
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    setLoading(true)
-    try {
-      // For actual implementation, use FormData to upload image
-      // For now, we'll assume analyzeQR takes base64 data
-      const reader = new FileReader()
-      reader.onload = async (e) => {
-        try {
-          const response = await analyzeQR(e.target.result)
-          setResult(response.data)
-          navigate('/result')
-        } catch (error) {
-          setErrorMessage(error.response?.data?.message || 'Analysis failed')
-        } finally {
-          setLoading(false)
+    const reader = new FileReader();
+
+    reader.onload = function () {
+      const img = new Image();
+      img.src = reader.result;
+
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        if (code) {
+          setQrData(code.data);
+          navigate("/analysis");
+        } else {
+          alert("No QR code detected in the image.");
         }
-      }
-      reader.readAsDataURL(selectedFile)
-    } catch (error) {
-      setErrorMessage('Upload failed')
-      setLoading(false)
-    }
-  }
+      };
+    };
+
+    reader.readAsDataURL(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
-      <div className="max-w-2xl mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center mb-8">Upload QR Code</h1>
+    <div className="flex flex-col items-center py-10">
 
-        <div className="card">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
-            {preview ? (
-              <div>
-                <img src={preview} alt="Preview" className="max-w-xs mx-auto mb-4 rounded" />
-                <button
-                  onClick={() => {
-                    setSelectedFile(null)
-                    setPreview(null)
-                  }}
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  Change Image
-                </button>
-              </div>
-            ) : (
-              <div>
-                <p className="text-4xl mb-4">📤</p>
-                <label className="cursor-pointer">
-                  <span className="text-blue-600 hover:text-blue-800 font-semibold">Click to upload</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-                <p className="text-gray-500 mt-2">or drag and drop</p>
-                <p className="text-gray-400 text-sm">PNG, JPG, GIF (max 5MB)</p>
-              </div>
-            )}
-          </div>
+      <h2 className="text-2xl font-bold mb-6">Upload QR Image</h2>
 
-          <button
-            onClick={handleUpload}
-            disabled={!selectedFile}
-            className="btn-primary w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Analyze QR Code
-          </button>
-        </div>
-      </div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        className="mb-6"
+      />
+
+      {imagePreview && (
+        <img
+          src={imagePreview}
+          alt="QR Preview"
+          className="w-64 border rounded-lg shadow"
+        />
+      )}
+
     </div>
-  )
+  );
 }
+
+export default QRUploadPage;

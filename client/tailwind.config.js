@@ -2,21 +2,10 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        danger: '#ef4444',
-        warning: '#f59e0b',
-        success: '#10b981',
-        primary: '#3b82f6',
-        secondary: '#6366f1',
-      },
-      fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
-      },
-    },
+    extend: {},
   },
   plugins: [],
-}
+};
