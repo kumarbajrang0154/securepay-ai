@@ -1,42 +1,61 @@
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { QrReader } from "react-qr-reader";
+import React, { useEffect, useRef } from "react"
 
-import { AnalysisContext } from "../context/AnalysisContext";
+export default function QRScannerPage() {
 
-function QRScannerPage() {
-  const { setQrData } = useContext(AnalysisContext);
-  const navigate = useNavigate();
+  const videoRef = useRef(null)
 
-  const handleScan = (result) => {
-    if (result?.text) {
-      setQrData(result.text);
-      navigate("/analysis");
+  useEffect(() => {
+
+    const startCamera = async () => {
+
+      try {
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" }
+        })
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+        }
+
+      } catch (err) {
+        console.error("Camera error:", err)
+        alert("Camera access denied")
+      }
+
     }
-  };
 
-  const handleError = (error) => {
-    console.error("QR Scan Error:", error);
-  };
+    startCamera()
+
+  }, [])
 
   return (
-    <div className="flex flex-col items-center justify-center py-10">
 
-      <h2 className="text-2xl font-bold mb-6">Scan QR Code</h2>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh"
+      }}
+    >
 
-      <div className="w-full max-w-md">
-        <QrReader
-          constraints={{ facingMode: "environment" }}
-          onResult={(result, error) => {
-            if (!!result) handleScan(result);
-            if (!!error) handleError(error);
-          }}
-          style={{ width: "100%" }}
-        />
-      </div>
+      <h2>Scan QR Code</h2>
+
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        style={{
+          width: "400px",
+          borderRadius: "12px",
+          border: "3px solid #333"
+        }}
+      />
 
     </div>
-  );
-}
 
-export default QRScannerPage;
+  )
+
+}

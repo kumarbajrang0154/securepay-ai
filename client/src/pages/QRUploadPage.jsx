@@ -1,53 +1,61 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-function QRUploadPage() {
+export default function QRUploadPage() {
 
-  const [image, setImage] = useState(null);
-  const navigate = useNavigate();
+  const [file, setFile] = useState(null)
+  const navigate = useNavigate()
 
-  const handleUpload = (e) => {
+  const handleUpload = async () => {
 
-    const file = e.target.files[0];
-
-    if (file) {
-      setImage(URL.createObjectURL(file));
+    if (!file) {
+      alert("Please upload a QR image")
+      return
     }
 
-  };
+    const formData = new FormData()
+    formData.append("qrImage", file)
+
+    try {
+
+      const response = await fetch("http://localhost:5000/api/analysis", {
+        method: "POST",
+        body: formData
+      })
+
+      const data = await response.json()
+
+      navigate("/result", { state: data })
+
+    } catch (err) {
+
+      console.error(err)
+      alert("Error analyzing QR")
+
+    }
+
+  }
 
   return (
 
-    <div className="flex flex-col items-center p-8">
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
 
-      <h1 className="text-2xl font-bold mb-6">
-        Upload QR Image
-      </h1>
+      <h2>Upload QR Code</h2>
 
-      <input type="file" onChange={handleUpload} />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setFile(e.target.files[0])}
+      />
 
-      {image && (
+      <br /><br />
 
-        <>
-          <img
-            src={image}
-            alt="preview"
-            className="mt-6 w-64 rounded"
-          />
-
-          <button
-            onClick={() => navigate("/analysis")}
-            className="mt-4 bg-blue-600 text-white px-6 py-2 rounded"
-          >
-            Continue
-          </button>
-
-        </>
-      )}
+      <button onClick={handleUpload}>
+        Analyze QR
+      </button>
 
     </div>
 
-  );
-}
+  )
 
-export default QRUploadPage;
+}

@@ -1,30 +1,32 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom"
 
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
-import QRUploadPage from "./pages/QRUploadPage";
-import TransactionAnalysisPage from "./pages/TransactionAnalysisPage";
-
-import InstallPWA from "./components/InstallPWA";
+import LoginPage from "./pages/LoginPage"
+import HomePage from "./pages/HomePage"
+import QRScannerPage from "./pages/QRScannerPage"
+import QRUploadPage from "./pages/QRUploadPage"
+import RiskResultPage from "./pages/RiskResultPage"
 
 function App() {
-
   return (
-    <>
+    <Routes>
 
-      <InstallPWA />
+      {/* Login Page */}
+      <Route path="/" element={<LoginPage />} />
 
-      <Routes>
+      {/* Home Page */}
+      <Route path="/home" element={<HomePage />} />
 
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/upload" element={<QRUploadPage />} />
-        <Route path="/analysis" element={<TransactionAnalysisPage />} />
+      {/* Scan QR */}
+      <Route path="/scan" element={<QRScannerPage />} />
 
-      </Routes>
+      {/* Upload QR */}
+      <Route path="/upload" element={<QRUploadPage />} />
 
-    </>
-  );
+      {/* Result Page */}
+      <Route path="/result" element={<RiskResultPage />} />
+
+    </Routes>
+  )
 }
 
-export default App;
+export default App
