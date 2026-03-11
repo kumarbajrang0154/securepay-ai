@@ -1,46 +1,49 @@
-import Navbar from "../components/Navbar";
-import { QrReader } from "react-qr-reader";
+import { useNavigate } from "react-router-dom"
 
-function HomePage() {
+export default function HomePage() {
+
+  const navigate = useNavigate()
 
   return (
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
 
-    <div>
+      <h1>SecurePay AI</h1>
+      <h2>Choose QR Method</h2>
 
-      <Navbar />
-
-      <div className="flex flex-col items-center mt-10">
-
-        <div className="w-80">
-
-          <QrReader
-            constraints={{ facingMode: "environment" }}
-            onResult={(result) => {
-
-              if (result) {
-
-                console.log(result?.text);
-
-              }
-
-            }}
-            style={{ width: "100%" }}
-          />
-
-        </div>
+      <div style={{ marginTop: "40px" }}>
 
         <button
-          onClick={() => window.location.href="/upload"}
-          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded"
+          onClick={() => navigate("/scan")}
+          style={{
+            padding: "15px 40px",
+            margin: "10px",
+            fontSize: "18px",
+            backgroundColor: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: "6px"
+          }}
         >
-          Upload QR Image
+          Scan QR
+        </button>
+
+        <button
+          onClick={() => navigate("/upload")}
+          style={{
+            padding: "15px 40px",
+            margin: "10px",
+            fontSize: "18px",
+            backgroundColor: "#16a34a",
+            color: "white",
+            border: "none",
+            borderRadius: "6px"
+          }}
+        >
+          Upload QR
         </button>
 
       </div>
 
     </div>
-
-  );
+  )
 }
-
-export default HomePage;
