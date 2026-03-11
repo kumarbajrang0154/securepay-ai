@@ -3,6 +3,8 @@
  */
 
 import crypto from 'crypto'
+import Jimp from 'jimp'
+import QrCode from 'qrcode-reader'
 
 /**
  * Generate SHA256 hash
@@ -56,6 +58,45 @@ export const sanitizeInput = (input) => {
   return input.trim().replace(/[<>]/g, '')
 }
 
+/**
+ * Decode QR Image
+ */
+export const decodeQR = async (imagePath) => {
+  const img = await Jimp.read(imagePath)
+
+  const qr = new QrCode()
+
+  return new Promise((resolve, reject) => {
+    qr.callback = (err, value) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(value.result)
+      }
+    }
+
+    qr.decode(img.bitmap)
+  })
+}
+
+/**
+ * Extract UPI Payment Data
+ */
+export const parseUPI = (qrData) => {
+  try {
+    const url = new URL(qrData)
+
+    return {
+      upiId: url.searchParams.get('pa'),
+      merchantName: url.searchParams.get('pn'),
+      amount: parseFloat(url.searchParams.get('am')),
+      currency: url.searchParams.get('cu')
+    }
+  } catch (error) {
+    return null
+  }
+}
+
 export default {
   generateHash,
   isValidEmail,
@@ -63,4 +104,6 @@ export default {
   formatCurrency,
   getIPAddress,
   sanitizeInput,
+  decodeQR,
+  parseUPI
 }
