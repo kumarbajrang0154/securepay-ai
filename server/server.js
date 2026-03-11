@@ -1,10 +1,13 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+
 import { connectDB } from './src/config/db.js'
+
 import analysisRoutes from './src/routes/analysisRoutes.js'
 import fraudRoutes from './src/routes/fraudRoutes.js'
 import transactionRoutes from './src/routes/transactionRoutes.js'
+import authRoutes from './src/routes/authRoutes.js'
 
 dotenv.config()
 
@@ -26,21 +29,26 @@ app.use((req, res, next) => {
 connectDB()
 
 // Routes
+app.use('/api/auth', authRoutes)
 app.use('/api/analysis', analysisRoutes)
 app.use('/api/fraud', fraudRoutes)
 app.use('/api/transactions', transactionRoutes)
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running', timestamp: new Date() })
+  res.json({
+    status: 'Server is running',
+    timestamp: new Date()
+  })
 })
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack)
+
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
-    timestamp: new Date(),
+    timestamp: new Date()
   })
 })
 
