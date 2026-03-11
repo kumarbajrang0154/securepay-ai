@@ -1,138 +1,155 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import NeuralNetworkBackground from "../components/NeuralNetworkBackground";
 
 export default function HomePage() {
-
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="relative min-h-screen text-white overflow-hidden">
 
-      {/* TOP HEADER */}
-      <div className="bg-white shadow flex justify-between items-center px-8 py-4">
+      <NeuralNetworkBackground />
 
-        <h1 className="text-xl font-bold text-slate-800">
-          SecurePay AI
-        </h1>
+      <Navbar />
 
-        <div className="flex items-center gap-3 cursor-pointer">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-10">
 
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="user"
-            className="w-10 h-10 rounded-full"
-          />
+        {/* HERO SECTION */}
 
-          <span className="font-medium text-gray-700">
-            User
-          </span>
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 mb-10 text-center shadow-xl">
 
-        </div>
+          <h1 className="text-3xl font-bold mb-2">
+            🛡 SecurePay AI Protection Active
+          </h1>
 
-      </div>
+          <p className="text-gray-300 mb-6">
+            AI powered QR fraud detection protecting your payments
+          </p>
 
-
-      {/* MAIN DASHBOARD */}
-      <div className="max-w-6xl mx-auto mt-10 px-6">
-
-        {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
-          <div className="bg-white p-6 rounded-xl shadow">
-            <p className="text-gray-500 text-sm">Total Scans</p>
-            <h2 className="text-2xl font-bold mt-1">12</h2>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow">
-            <p className="text-gray-500 text-sm">Fraud Detected</p>
-            <h2 className="text-2xl font-bold text-red-500 mt-1">2</h2>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow">
-            <p className="text-gray-500 text-sm">Safe Transactions</p>
-            <h2 className="text-2xl font-bold text-green-500 mt-1">10</h2>
-          </div>
-
-        </div>
-
-
-        {/* QR SCANNER CARD */}
-        <div className="bg-white rounded-xl shadow p-8 text-center">
-
-          <h2 className="text-xl font-semibold mb-6">
+          <Link
+            to="/scan"
+            className="inline-block px-10 py-4 text-lg font-semibold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-105 transition"
+          >
             Scan QR Code
-          </h2>
-
-          {/* Scanner Frame */}
-          <div className="relative w-64 h-64 mx-auto border-4 border-dashed border-blue-400 rounded-lg flex items-center justify-center">
-
-            <span className="text-gray-400">
-              Place QR Code Here
-            </span>
-
-            {/* scan line */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 animate-pulse"></div>
-
-          </div>
-
-          {/* ACTION BUTTONS */}
-          <div className="mt-8 flex justify-center gap-4">
-
-            <button
-              onClick={() => navigate("/qr-scanner")}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Scan QR
-            </button>
-
-            <button
-              onClick={() => navigate("/qr-upload")}
-              className="bg-slate-700 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition"
-            >
-              Upload QR Image
-            </button>
-
-          </div>
-
+          </Link>
         </div>
-
 
         {/* QUICK ACTIONS */}
-        <div className="grid md:grid-cols-2 gap-6 mt-10">
 
-          <div
-            onClick={() => navigate("/history")}
-            className="bg-white p-6 rounded-xl shadow cursor-pointer hover:shadow-lg transition"
+        <div className="grid md:grid-cols-4 gap-6 mb-10">
+
+          <Link
+            to="/scan"
+            className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 hover:bg-white/20 transition text-center"
           >
+            <div className="text-3xl mb-2">📷</div>
+            <div>Scan QR</div>
+          </Link>
 
-            <h3 className="font-semibold mb-2">
-              Transaction History
-            </h3>
+          <Link
+            to="/upload"
+            className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 hover:bg-white/20 transition text-center"
+          >
+            <div className="text-3xl mb-2">⬆</div>
+            <div>Upload QR</div>
+          </Link>
 
-            <p className="text-sm text-gray-500">
-              View all scanned QR transactions
-            </p>
+          <Link
+            to="/transactions"
+            className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 hover:bg-white/20 transition text-center"
+          >
+            <div className="text-3xl mb-2">🕑</div>
+            <div>History</div>
+          </Link>
 
+          <Link
+            to="/report"
+            className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 hover:bg-white/20 transition text-center"
+          >
+            <div className="text-3xl mb-2">⚠</div>
+            <div>Report Fraud</div>
+          </Link>
+
+        </div>
+
+        {/* STATS */}
+
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
+
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 text-center">
+            <p className="text-gray-400">Scans Today</p>
+            <h2 className="text-3xl font-bold text-cyan-400">12</h2>
           </div>
 
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 text-center">
+            <p className="text-gray-400">Frauds Detected</p>
+            <h2 className="text-3xl font-bold text-red-400">2</h2>
+          </div>
 
-          <div
-            onClick={() => navigate("/report-fraud")}
-            className="bg-white p-6 rounded-xl shadow cursor-pointer hover:shadow-lg transition"
-          >
-
-            <h3 className="font-semibold mb-2">
-              Report Fraud
-            </h3>
-
-            <p className="text-sm text-gray-500">
-              Report suspicious QR codes
-            </p>
-
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 text-center">
+            <p className="text-gray-400">Security Score</p>
+            <h2 className="text-3xl font-bold text-green-400">98%</h2>
           </div>
 
         </div>
 
+        {/* RECENT SCANS */}
+
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-6 mb-10">
+
+          <h2 className="text-xl font-semibold mb-4">Recent Scans</h2>
+
+          <table className="w-full text-left">
+
+            <thead className="text-gray-400 border-b border-white/20">
+              <tr>
+                <th className="py-2">Merchant</th>
+                <th>Amount</th>
+                <th>Risk</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              <tr className="border-b border-white/10">
+                <td className="py-2">Amazon</td>
+                <td>₹500</td>
+                <td className="text-green-400">SAFE</td>
+                <td>Today</td>
+              </tr>
+
+              <tr className="border-b border-white/10">
+                <td className="py-2">Unknown Merchant</td>
+                <td>₹2000</td>
+                <td className="text-red-400">HIGH</td>
+                <td>Today</td>
+              </tr>
+
+              <tr>
+                <td className="py-2">Cafe Coffee</td>
+                <td>₹300</td>
+                <td className="text-green-400">SAFE</td>
+                <td>Yesterday</td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        {/* FRAUD ALERT */}
+
+        <div className="bg-red-500/10 border border-red-500 rounded-xl p-6 text-red-400 text-center">
+
+          ⚠ Fraud alert: Suspicious QR codes reported today.  
+          Always verify before payment.
+
+        </div>
+
       </div>
+
+      <Footer />
 
     </div>
   );
