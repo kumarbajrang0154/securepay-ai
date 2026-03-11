@@ -1,66 +1,67 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Navbar() {
+export default function Navbar() {
 
-  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
-  const logout = () => {
-
+  const handleLogout = () => {
     localStorage.removeItem("userMobile");
-
     navigate("/");
-
   };
 
   return (
+    <div className="bg-white shadow px-6 py-4 flex justify-between items-center">
 
-    <div className="flex justify-between items-center p-4 bg-white shadow">
-
-      <h1 className="text-lg font-bold">
+      {/* Logo */}
+      <h1
+        onClick={() => navigate("/home")}
+        className="text-xl font-bold text-blue-600 cursor-pointer"
+      >
         SecurePay AI
       </h1>
 
+      {/* Profile */}
       <div className="relative">
 
         <div
           onClick={() => setOpen(!open)}
-          className="flex items-center cursor-pointer gap-2 bg-gray-100 px-3 py-1 rounded"
+          className="flex items-center gap-2 cursor-pointer"
         >
-
           <img
             src="https://i.pravatar.cc/40"
-            alt="user"
-            className="w-8 h-8 rounded-full"
+            className="w-9 h-9 rounded-full"
           />
 
           <span className="text-sm font-medium">
-            Rahul
+            User
           </span>
-
         </div>
 
+        {/* Dropdown */}
         {open && (
-
-          <div className="absolute right-0 mt-2 bg-white shadow rounded w-32">
+          <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg overflow-hidden">
 
             <button
-              onClick={logout}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100"
+              onClick={() => navigate("/history")}
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+            >
+              History
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-500"
             >
               Logout
             </button>
 
           </div>
-
         )}
 
       </div>
 
     </div>
-
   );
 }
-
-export default Navbar;

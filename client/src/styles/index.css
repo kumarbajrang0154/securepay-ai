@@ -7,3 +7,32 @@ body {
     Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   background-color: #f3f4f6;
 }
+/* Neural nodes */
+.node{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:#22d3ee;
+  border-radius:50%;
+  animation:pulseNode 3s infinite;
+}
+
+@keyframes pulseNode{
+  0%{opacity:0.3;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.5);}
+  100%{opacity:0.3;transform:scale(1);}
+}
+
+/* Scanner animation */
+@keyframes scan{
+  0%{top:0;}
+  50%{top:90%;}
+  100%{top:0;}
+}
+
+/* floating card */
+@keyframes float{
+  0%{transform:translateY(0px);}
+  50%{transform:translateY(-12px);}
+  100%{transform:translateY(0px);}
+}

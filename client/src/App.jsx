@@ -1,32 +1,29 @@
-import { Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import LoginPage from "./pages/LoginPage"
-import HomePage from "./pages/HomePage"
-import QRScannerPage from "./pages/QRScannerPage"
-import QRUploadPage from "./pages/QRUploadPage"
-import RiskResultPage from "./pages/RiskResultPage"
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
+import QRScannerPage from "./pages/QRScannerPage";
+import QRUploadPage from "./pages/QRUploadPage";
+import RiskResultPage from "./pages/RiskResultPage";
+import TransactionHistoryPage from "./pages/TransactionHistoryPage";
+import ReportFraudPage from "./pages/ReportFraudPage";
 
 function App() {
   return (
-    <Routes>
+    <BrowserRouter>
+      <Routes>
 
-      {/* Login Page */}
-      <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/qr-scanner" element={<QRScannerPage />} />
+        <Route path="/qr-upload" element={<QRUploadPage />} />
+        <Route path="/risk-result" element={<RiskResultPage />} />
+        <Route path="/history" element={<TransactionHistoryPage />} />
+        <Route path="/report-fraud" element={<ReportFraudPage />} />
 
-      {/* Home Page */}
-      <Route path="/home" element={<HomePage />} />
-
-      {/* Scan QR */}
-      <Route path="/scan" element={<QRScannerPage />} />
-
-      {/* Upload QR */}
-      <Route path="/upload" element={<QRUploadPage />} />
-
-      {/* Result Page */}
-      <Route path="/result" element={<RiskResultPage />} />
-
-    </Routes>
-  )
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
