@@ -1,95 +1,89 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import NeuralNetworkBackground from "../components/NeuralNetworkBackground";
+import RiskMeter from "../components/RiskMeter";
 
 export default function RiskResultPage() {
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  const fraudScore =
+    parseInt(localStorage.getItem("fraudScore")) || 0;
 
-  // Example data (later API se ayega)
-  const result = location.state || {
-    merchant: "XYZ Store",
-    amount: "500",
-    upi: "xyz@upi",
-    probability: 82
+  const parsedUPI =
+    JSON.parse(localStorage.getItem("parsedUPI")) || {};
+
+  const getRiskLabel = () => {
+    if (fraudScore < 40) return "SAFE";
+    if (fraudScore < 70) return "SUSPICIOUS";
+    return "HIGH RISK";
   };
 
-  const getRiskLevel = () => {
-    if (result.probability > 70) return "HIGH";
-    if (result.probability > 40) return "MEDIUM";
-    return "SAFE";
+  const getRiskColor = () => {
+    if (fraudScore < 40) return "text-green-400";
+    if (fraudScore < 70) return "text-yellow-400";
+    return "text-red-400";
   };
-
-  const riskLevel = getRiskLevel();
-
-  const riskColor =
-    riskLevel === "HIGH"
-      ? "text-red-500"
-      : riskLevel === "MEDIUM"
-      ? "text-yellow-500"
-      : "text-green-500";
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+    <div className="relative min-h-screen text-white">
 
-      <div className="bg-white shadow-xl rounded-xl p-10 w-full max-w-lg">
+      <NeuralNetworkBackground />
+      <Navbar />
 
-        <h2 className="text-2xl font-bold text-center mb-8">
-          AI Fraud Risk Analysis
-        </h2>
+      <div className="relative z-10 max-w-3xl mx-auto mt-16 px-6">
 
-        {/* Risk Meter */}
-        <div className="text-center mb-8">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-lg">
 
-          <div className="relative w-40 h-40 mx-auto rounded-full border-[10px] border-gray-200 flex items-center justify-center">
+          <h1 className="text-2xl font-bold mb-8 text-center">
+            QR Fraud Analysis Result
+          </h1>
 
-            <span className="text-3xl font-bold">
-              {result.probability}%
-            </span>
+          {/* FRAUD METER */}
+
+          <div className="flex justify-center mb-8">
+            <RiskMeter score={fraudScore} />
+          </div>
+
+          {/* RISK LABEL */}
+
+          <div className={`text-center text-lg font-semibold mb-8 ${getRiskColor()}`}>
+            Risk Level: {getRiskLabel()}
+          </div>
+
+          {/* QR DETAILS */}
+
+          <div className="space-y-3 text-gray-300 bg-black/40 p-4 rounded-lg">
+
+            <p><b>Merchant:</b> {parsedUPI.merchant || "Unknown Merchant"}</p>
+
+            <p><b>UPI ID:</b> {parsedUPI.upiId || "Unknown"}</p>
+
+            <p><b>Amount:</b> ₹{parsedUPI.amount || "Not specified"}</p>
+
+            <p><b>Currency:</b> {parsedUPI.currency || "INR"}</p>
 
           </div>
 
-          <p className={`mt-4 font-semibold text-lg ${riskColor}`}>
-            {riskLevel} RISK
-          </p>
+          {/* AI MESSAGE */}
 
-        </div>
+          <div className="mt-8 p-4 bg-black/40 rounded-lg text-sm text-gray-300 text-center">
 
-        {/* Details */}
-        <div className="space-y-3 text-sm">
+            AI analysis detected unusual payment behavior.  
+            Please verify the merchant before making any payment.
 
-          <div className="flex justify-between">
-            <span className="text-gray-500">Merchant</span>
-            <span className="font-medium">{result.merchant}</span>
           </div>
 
-          <div className="flex justify-between">
-            <span className="text-gray-500">Amount</span>
-            <span className="font-medium">₹{result.amount}</span>
+          {/* ACTION BUTTONS */}
+
+          <div className="mt-8 flex gap-4">
+
+            <button className="flex-1 py-3 bg-red-500 rounded-lg hover:bg-red-600 transition">
+              Report Fraud
+            </button>
+
+            <button className="flex-1 py-3 bg-green-500 rounded-lg hover:bg-green-600 transition">
+              Continue Anyway
+            </button>
+
           </div>
-
-          <div className="flex justify-between">
-            <span className="text-gray-500">UPI ID</span>
-            <span className="font-medium">{result.upi}</span>
-          </div>
-
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-4 mt-8">
-
-          <button
-            onClick={() => navigate("/report-fraud")}
-            className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition"
-          >
-            Report Fraud
-          </button>
-
-          <button
-            onClick={() => navigate("/home")}
-            className="flex-1 bg-slate-700 text-white py-3 rounded-lg hover:bg-slate-800 transition"
-          >
-            Go Back
-          </button>
 
         </div>
 

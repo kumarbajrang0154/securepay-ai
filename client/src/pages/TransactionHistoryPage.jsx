@@ -1,126 +1,94 @@
-import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import NeuralNetworkBackground from "../components/NeuralNetworkBackground";
 
 export default function TransactionHistoryPage() {
 
-  const navigate = useNavigate();
+  const transactions =
+    JSON.parse(localStorage.getItem("transactions")) || [];
 
-  // Dummy Data (later API se ayega)
-  const transactions = [
-    {
-      merchant: "Amazon Store",
-      amount: 1200,
-      upi: "amazon@upi",
-      risk: "SAFE",
-      date: "10 Mar 2026"
-    },
-    {
-      merchant: "Unknown Merchant",
-      amount: 500,
-      upi: "fraud@upi",
-      risk: "HIGH",
-      date: "09 Mar 2026"
-    },
-    {
-      merchant: "Flipkart",
-      amount: 850,
-      upi: "flipkart@upi",
-      risk: "MEDIUM",
-      date: "08 Mar 2026"
-    }
-  ];
+  const getRiskColor = (score) => {
+    if (score < 40) return "text-green-400";
+    if (score < 70) return "text-yellow-400";
+    return "text-red-400";
+  };
 
-  const getRiskBadge = (risk) => {
-
-    if (risk === "HIGH")
-      return "bg-red-100 text-red-600";
-
-    if (risk === "MEDIUM")
-      return "bg-yellow-100 text-yellow-600";
-
-    return "bg-green-100 text-green-600";
+  const getRiskLabel = (score) => {
+    if (score < 40) return "SAFE";
+    if (score < 70) return "SUSPICIOUS";
+    return "HIGH RISK";
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8">
+    <div className="relative min-h-screen text-white">
 
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <NeuralNetworkBackground />
+      <Navbar />
 
-        <h1 className="text-2xl font-bold">
-          Transaction History
-        </h1>
+      <div className="relative z-10 max-w-5xl mx-auto mt-16 px-6">
 
-        <button
-          onClick={() => navigate("/home")}
-          className="bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-800"
-        >
-          Back to Dashboard
-        </button>
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-lg">
 
-      </div>
+          <h1 className="text-2xl font-bold mb-6">
+            Transaction History
+          </h1>
 
+          {transactions.length === 0 && (
+            <p className="text-gray-400">
+              No transactions yet
+            </p>
+          )}
 
-      {/* Table */}
-      <div className="bg-white shadow rounded-xl overflow-hidden">
+          {transactions.length > 0 && (
 
-        <table className="w-full">
+            <table className="w-full">
 
-          <thead className="bg-slate-50">
+              <thead className="text-left text-gray-400 border-b border-white/10">
 
-            <tr className="text-left text-sm text-gray-600">
+                <tr>
+                  <th className="py-3">QR Data</th>
+                  <th>Fraud Score</th>
+                  <th>Risk</th>
+                  <th>Date</th>
+                </tr>
 
-              <th className="p-4">Merchant</th>
-              <th className="p-4">Amount</th>
-              <th className="p-4">UPI ID</th>
-              <th className="p-4">Risk</th>
-              <th className="p-4">Date</th>
+              </thead>
 
-            </tr>
+              <tbody>
 
-          </thead>
+                {transactions.map((tx, index) => (
 
-          <tbody>
-
-            {transactions.map((tx, index) => (
-
-              <tr
-                key={index}
-                className="border-t hover:bg-slate-50 transition"
-              >
-
-                <td className="p-4 font-medium">
-                  {tx.merchant}
-                </td>
-
-                <td className="p-4">
-                  ₹{tx.amount}
-                </td>
-
-                <td className="p-4 text-gray-600">
-                  {tx.upi}
-                </td>
-
-                <td className="p-4">
-
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getRiskBadge(tx.risk)}`}
+                  <tr
+                    key={index}
+                    className="border-b border-white/10"
                   >
-                    {tx.risk}
-                  </span>
 
-                </td>
+                    <td className="py-3 break-all">
+                      {tx.qr}
+                    </td>
 
-                <td className="p-4 text-gray-500">
-                  {tx.date}
-                </td>
+                    <td>
+                      {tx.score}%
+                    </td>
 
-              </tr>
+                    <td className={getRiskColor(tx.score)}>
+                      {getRiskLabel(tx.score)}
+                    </td>
 
-            ))}
+                    <td>
+                      {tx.date}
+                    </td>
 
-          </tbody>
+                  </tr>
 
-        </table>
+                ))}
+
+              </tbody>
+
+            </table>
+
+          )}
+
+        </div>
 
       </div>
 

@@ -1,78 +1,97 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { QrReader } from "react-qr-reader";
+import { useNavigate } from "react-router-dom";
+
+import Navbar from "../components/Navbar";
+import NeuralNetworkBackground from "../components/NeuralNetworkBackground";
+import { analyzeQR } from "../utils/fraudDetection";
+import { parseUPI } from "../utils/upiParser";
 
 export default function QRScannerPage() {
 
   const navigate = useNavigate();
+  const [result, setResult] = useState("");
 
-  const handleScan = (result) => {
+  const handleScan = (data) => {
 
-    if (result) {
+    if (data) {
 
-      const qrData = result?.text;
+      const qrText = data.text;
 
-      // Example parsing (later improve karenge)
-      const parsedData = {
-        merchant: "Demo Merchant",
-        amount: "500",
-        upi: "merchant@upi",
-        probability: Math.floor(Math.random() * 100)
+      setResult(qrText);
+
+      const parsed = parseUPI(qrText);
+
+      const fraudScore = analyzeQR(qrText);
+
+      // store scan data
+      localStorage.setItem("scannedQR", qrText);
+      localStorage.setItem("fraudScore", fraudScore);
+      localStorage.setItem("parsedUPI", JSON.stringify(parsed));
+
+      // save transaction history
+      const oldTransactions =
+        JSON.parse(localStorage.getItem("transactions")) || [];
+
+      const newTransaction = {
+        qr: qrText,
+        score: fraudScore,
+        date: new Date().toLocaleString()
       };
 
-      navigate("/risk-result", { state: parsedData });
+      oldTransactions.unshift(newTransaction);
+
+      localStorage.setItem(
+        "transactions",
+        JSON.stringify(oldTransactions)
+      );
+
+      // go to AI analyzing screen
+      navigate("/analyzing");
 
     }
 
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col items-center p-6">
+    <div className="relative min-h-screen text-white">
 
-      {/* Title */}
-      <h1 className="text-2xl font-bold mb-6">
-        Scan QR Code
-      </h1>
+      <NeuralNetworkBackground />
+      <Navbar />
 
-      {/* Scanner Card */}
-      <div className="bg-white shadow-xl rounded-xl p-6 w-full max-w-md text-center">
+      <div className="relative z-10 max-w-2xl mx-auto mt-16 px-6">
 
-        {/* Camera */}
-        <div className="relative rounded-lg overflow-hidden">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-lg text-center">
 
-          <QrReader
-            constraints={{ facingMode: "environment" }}
-            onResult={(result) => handleScan(result)}
-            containerStyle={{ width: "100%" }}
-          />
+          <h1 className="text-2xl font-bold mb-6">
+            Scan QR Code
+          </h1>
 
-          {/* Scanner Frame */}
-          <div className="absolute inset-0 border-4 border-blue-400 rounded-lg pointer-events-none"></div>
+          <div className="rounded-xl overflow-hidden">
 
-          {/* Scan Line */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 animate-pulse"></div>
+            <QrReader
+              constraints={{ facingMode: "environment" }}
+              onResult={(result, error) => {
 
-        </div>
+                if (!!result) {
+                  handleScan(result);
+                }
 
-        <p className="text-sm text-gray-500 mt-4">
-          Place QR code inside the frame to scan
-        </p>
+              }}
+              style={{ width: "100%" }}
+            />
 
-        {/* Buttons */}
-        <div className="flex gap-3 mt-6">
+          </div>
 
-          <button
-            onClick={() => navigate("/qr-upload")}
-            className="flex-1 bg-slate-700 text-white py-3 rounded-lg hover:bg-slate-800 transition"
-          >
-            Upload QR
-          </button>
+          <p className="mt-4 text-gray-400 text-sm">
+            Point camera at a UPI QR code
+          </p>
 
-          <button
-            onClick={() => navigate("/home")}
-            className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
-          >
-            Back
-          </button>
+          {result && (
+            <div className="mt-6 bg-black/40 p-3 rounded-lg text-sm break-all">
+              {result}
+            </div>
+          )}
 
         </div>
 
