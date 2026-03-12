@@ -11,6 +11,7 @@ import ProfilePage from "./pages/ProfilePage";
 import EditProfilePage from "./pages/EditProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import AnalyzingPage from "./pages/AnalyzingPage";
+import MyReportsPage from "./pages/MyReportsPage"
 
 function App() {
   return (
@@ -52,6 +53,8 @@ function App() {
 
         {/* FALLBACK */}
         <Route path="*" element={<LoginPage />} />
+
+        <Route path="/my-fraud" element={<MyReportsPage />} />
 
       </Routes>
     </BrowserRouter>
