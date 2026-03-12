@@ -3,8 +3,42 @@ import NeuralNetworkBackground from "../components/NeuralNetworkBackground"
 
 export default function MyReportsPage() {
 
-  const reports =
+  const savedReports =
     JSON.parse(localStorage.getItem("fraudReports")) || []
+
+  const dummyReports = [
+
+    {
+      merchant: "Lottery Prize Center",
+      upiId: "lottery@upi",
+      amount: 5000,
+      reason: "Scam / Fraud",
+      status: "Pending Review",
+      date: "2026-03-10T16:40:00"
+    },
+
+    {
+      merchant: "Fake Cashback Offer",
+      upiId: "cashback@upi",
+      amount: 1500,
+      reason: "Unexpected Payment Request",
+      status: "Under Investigation",
+      date: "2026-03-11T11:10:00"
+    },
+
+    {
+      merchant: "Unknown Merchant",
+      upiId: "unknownpay@upi",
+      amount: 3200,
+      reason: "Fake Merchant",
+      status: "Reported",
+      date: "2026-03-12T09:30:00"
+    }
+
+  ]
+
+  const reports =
+    savedReports.length > 0 ? savedReports : dummyReports
 
   const totalReports = reports.length
 
@@ -35,14 +69,6 @@ export default function MyReportsPage() {
 
         </div>
 
-        {reports.length === 0 && (
-
-          <p className="text-gray-400">
-            You have not reported any QR fraud yet.
-          </p>
-
-        )}
-
         <div className="space-y-4">
 
           {reports.map((r, index) => (
@@ -52,10 +78,12 @@ export default function MyReportsPage() {
               className="bg-white/10 border border-white/10 rounded-xl p-4 backdrop-blur-lg"
             >
 
+              {/* HEADER */}
+
               <div className="flex justify-between mb-2">
 
                 <div className="font-semibold">
-                  {r.merchant || "Unknown Merchant"}
+                  {r.merchant}
                 </div>
 
                 <div className="text-yellow-400 text-sm">
@@ -64,16 +92,20 @@ export default function MyReportsPage() {
 
               </div>
 
+              {/* UPI */}
+
               <div className="text-sm text-gray-400 break-all mb-2">
                 {r.upiId}
               </div>
+
+              {/* DETAILS */}
 
               <div className="text-sm text-gray-300">
                 Reason: {r.reason}
               </div>
 
               <div className="text-sm text-gray-300">
-                Amount: ₹{r.amount || "Not specified"}
+                Amount: ₹{r.amount}
               </div>
 
               <div className="text-sm text-gray-400">
