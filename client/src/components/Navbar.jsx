@@ -17,9 +17,9 @@ export default function Navbar() {
 
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
 
-        <div className="text-xl font-bold text-cyan-400">
+        <Link to="/dashboard" className="text-xl font-bold text-cyan-400">
           SecurePay AI
-        </div>
+        </Link>
 
         <div className="relative">
 
