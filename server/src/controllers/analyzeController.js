@@ -1,10 +1,11 @@
 import { parseQR } from "../utils/qrParser.js";
 import analyzeFraud from "../services/fraudEngine.js";
 import FraudStats from "../models/FraudStats.js";
+import FraudReport from "../models/FraudReport.js";
 
 export const analyzeQR = async (req, res) => {
   try {
-    const { qrData } = req.body;
+    const { qrData, mobile } = req.body;
 
     if (!qrData) {
       return res.status(400).json({
@@ -42,7 +43,16 @@ export const analyzeQR = async (req, res) => {
       }
     }
 
-    // Step 4: Determine risk level
+    // Step 4: Check if same user reported
+    let sameUserWarning = false;
+    if (mobile && upiId) {
+      const existing = await FraudReport.findOne({ mobile, upiId });
+      if (existing) {
+        sameUserWarning = true;
+      }
+    }
+
+    // Step 5: Determine risk level
     let riskLevel = "SAFE";
 
     if (fraudScore > 60) {
@@ -51,7 +61,7 @@ export const analyzeQR = async (req, res) => {
       riskLevel = "SUSPICIOUS";
     }
 
-    // Step 5: Send response
+    // Step 6: Send response
     res.json({
       merchant,
       upiId,
@@ -59,6 +69,7 @@ export const analyzeQR = async (req, res) => {
       fraudScore,
       riskLevel,
       communityReports,
+      sameUserWarning,
       warnings,
     });
   } catch (error) {

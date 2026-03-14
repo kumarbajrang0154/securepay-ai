@@ -10,6 +10,7 @@ import analyzeRoutes from "./src/routes/analyzeRoutes.js";
 import analysisRoutes from "./src/routes/analysisRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import fraudRoutes from "./src/routes/fraudRoutes.js";
+import fraudReportRoutes from "./src/routes/fraudReportRoutes.js";
 import transactionRoutes from "./src/routes/transactionRoutes.js";
 import analyticsRoutes from "./src/routes/analyticsRoutes.js";
 
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 
 // mount routes
 app.use("/api", analyzeRoutes);
+app.use("/api", fraudReportRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

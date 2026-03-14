@@ -1,14 +1,14 @@
 import express from "express";
 
 import {
-createFraudReport,
-getUserReports
+  reportFraud,
+  getMyReports
 } from "../controllers/fraudReportController.js";
 
 const router = express.Router();
 
-router.post("/report", createFraudReport);
+router.post("/report-fraud", reportFraud);
 
-router.get("/reports/:mobile", getUserReports);
+router.get("/my-reports", getMyReports);
 
 export default router;

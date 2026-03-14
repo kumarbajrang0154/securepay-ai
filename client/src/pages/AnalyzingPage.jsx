@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { analyzeQR } from "../services/apiService";
 
 export default function AnalyzingPage(){
 
@@ -18,22 +19,7 @@ async function analyze(){
 
 try{
 
-const res = await fetch(
-"http://localhost:5000/api/analyze",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({qrData})
-}
-);
-
-if(!res.ok){
-throw new Error("API request failed");
-}
-
-const data = await res.json();
+const data = await analyzeQR(qrData);
 
 // store fraud score
 localStorage.setItem("fraudScore", data.fraudScore || 0);
@@ -47,6 +33,10 @@ upiId:data.upiId || "",
 amount:data.amount || "0"
 })
 );
+
+// store community data
+localStorage.setItem("communityReports", data.communityReports || 0);
+localStorage.setItem("sameUserWarning", data.sameUserWarning ? "true" : "false");
 
 navigate("/result");
 

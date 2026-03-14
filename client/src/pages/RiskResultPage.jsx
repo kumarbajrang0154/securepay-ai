@@ -9,6 +9,8 @@ export default function RiskResultPage() {
 
   const fraudScore = Number(localStorage.getItem("fraudScore")) || 0
   const parsedUPI = JSON.parse(localStorage.getItem("parsedUPI")) || {}
+  const communityReports = Number(localStorage.getItem("communityReports")) || 0
+  const sameUserWarning = localStorage.getItem("sameUserWarning") === "true"
 
   const riskLevel =
     fraudScore > 60 ? "FRAUD" :
@@ -51,6 +53,19 @@ export default function RiskResultPage() {
           </h1>
 
           <RiskMeter score={fraudScore} />
+
+          {communityReports > 0 && (
+            <div className="mt-4 bg-yellow-500/10 border border-yellow-500 rounded-lg p-3 text-yellow-400 text-center">
+              ⚠ COMMUNITY FRAUD ALERT<br />
+              Reported by {communityReports} SecurePay AI users
+            </div>
+          )}
+
+          {sameUserWarning && (
+            <div className="mt-4 bg-orange-500/10 border border-orange-500 rounded-lg p-3 text-orange-400 text-center">
+              ⚠ You previously reported this QR as fraud.
+            </div>
+          )}
 
           <p className="mt-4 text-green-400 font-semibold">
             Risk Level: {riskLevel}

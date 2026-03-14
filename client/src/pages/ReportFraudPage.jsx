@@ -1,48 +1,85 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import NeuralNetworkBackground from "../components/NeuralNetworkBackground"
+import { reportFraud } from "../services/apiService"
 
 export default function ReportFraudPage() {
 
-  const [merchant, setMerchant] = useState("")
-  const [upiId, setUpiId] = useState("")
-  const [amount, setAmount] = useState("")
+  const parsed = JSON.parse(localStorage.getItem("parsedUPI")) || {};
+
+  const [merchant, setMerchant] = useState(parsed.merchant || "")
+  const [upiId, setUpiId] = useState(parsed.upiId || "")
+  const [amount, setAmount] = useState(parsed.amount || "")
   const [reason, setReason] = useState("")
   const [screenshot, setScreenshot] = useState(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    // Check if user is logged in
+    const mobile = localStorage.getItem("userMobile");
+    if (!mobile) {
+      alert("Please login first to access this page");
+      window.location.href = "/login";
+      return;
+    }
+
+    // Check if QR data is available
+    const qrData = localStorage.getItem("scannedQR");
+    if (!qrData) {
+      alert("Please scan or upload a QR code first");
+      window.location.href = "/dashboard";
+      return;
+    }
+  }, [])
 
   const handleSubmit = async () => {
 
-const parsed =
-JSON.parse(localStorage.getItem("parsedUPI")) || {};
+    if (!upiId || !reason) {
+      alert("UPI ID and reason are required");
+      return;
+    }
 
-await fetch(
-"http://localhost:5000/api/report",
-{
-method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
-body: JSON.stringify({
+    // Validate UPI ID format
+    if (!upiId.includes("@")) {
+      alert("Please enter a valid UPI ID (e.g., merchant@upi)");
+      return;
+    }
 
-mobile: localStorage.getItem("userMobile"),
+    const mobile = localStorage.getItem("userMobile");
+    console.log("userMobile from localStorage:", mobile);
+    if (!mobile) {
+      alert("Please login first to report fraud");
+      return;
+    }
 
-merchant: parsed.merchant,
+    const qrData = localStorage.getItem("scannedQR");
+    console.log("scannedQR from localStorage:", qrData);
+    if (!qrData) {
+      alert("No QR data found. Please scan a QR first.");
+      return;
+    }
 
-upiId: parsed.upiId,
+    try {
+      const dataToSend = {
+        mobile,
+        merchant,
+        upiId,
+        amount: Number(amount) || 0,
+        reason,
+        qrData
+      };
+      console.log("Sending fraud report data:", dataToSend);
+      await reportFraud(dataToSend);
 
-amount: parsed.amount,
+      alert("Fraud reported successfully");
+      navigate("/my-fraud");
+    } catch (error) {
+      console.error("Fraud report error:", error);
+      alert(error.message || "Error reporting fraud");
+    }
 
-reason,
-
-qrData: localStorage.getItem("scannedQR")
-
-})
-}
-);
-
-alert("Fraud reported successfully");
-
-};
+  };
 
   return (
 
@@ -90,6 +127,7 @@ alert("Fraud reported successfully");
               onChange={(e) => setUpiId(e.target.value)}
               placeholder="merchant@upi"
               className="w-full mt-1 p-2 rounded bg-black/40 border border-white/10"
+              required
             />
           </div>
 

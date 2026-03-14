@@ -10,24 +10,22 @@ const fraudReportSchema = new mongoose.Schema(
 
     mobile: {
       type: String,
-      required: false,
-      default: "",
+      required: true,
     },
 
     merchant: {
       type: String,
-      required: false,
-      default: "",
+      required: true,
     },
 
     upiId: {
       type: String,
-      required: false,
-      default: "",
+      required: true,
     },
 
     amount: {
       type: Number,
+      required: true,
       default: 0,
     },
 
@@ -43,7 +41,7 @@ const fraudReportSchema = new mongoose.Schema(
 
     qrData: {
       type: String,
-      default: "",
+      required: true,
     },
 
     reporterEmail: {
@@ -81,4 +79,4 @@ const fraudReportSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("FraudReport", fraudReportSchema);
+export default mongoose.model("FraudReport", fraudReportSchema, "FraudReports");
