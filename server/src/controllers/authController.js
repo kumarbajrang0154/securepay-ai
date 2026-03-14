@@ -1,15 +1,17 @@
-import { User } from "../models/User.js";
+import User from "../models/User.js";
+import { sanitizeInput } from "../utils/helpers.js";
 
 export const loginUser = async (req, res) => {
 
   try {
 
-    const { mobile } = req.body;
+    const rawMobile = req.body?.mobile || "";
+    const mobile = sanitizeInput(rawMobile);
 
-    if (!mobile) {
+    if (!mobile || !/^\+?\d{10,15}$/.test(mobile.replace(/\s+/g, ""))) {
       return res.status(400).json({
         success: false,
-        message: "Mobile number is required"
+        message: "Valid mobile number is required",
       });
     }
 

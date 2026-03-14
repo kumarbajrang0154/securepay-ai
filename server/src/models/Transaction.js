@@ -1,49 +1,71 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema(
   {
+    qrHash: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
     merchant: {
       type: String,
-      required: true
+      default: "Unknown Merchant",
     },
 
     upiId: {
       type: String,
-      required: true
+      default: "",
     },
 
     amount: {
-      type: String,
-      default: "0"
+      type: Number,
+      default: 0,
     },
 
     currency: {
       type: String,
-      default: "INR"
+      default: "INR",
     },
 
     fraudScore: {
       type: Number,
-      default: 0
+      default: 0,
     },
 
     riskLevel: {
       type: String,
       enum: ["SAFE", "SUSPICIOUS", "FRAUD"],
-      default: "SAFE"
+      default: "SAFE",
     },
 
     reasons: {
       type: [String],
-      default: []
+      default: [],
     },
 
     raw: {
-      type: String
-    }
+      type: String,
+      default: "",
+    },
+
+    isReported: {
+      type: Boolean,
+      default: false,
+    },
+
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
+
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

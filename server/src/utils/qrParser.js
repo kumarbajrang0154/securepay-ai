@@ -1,50 +1,41 @@
-// server/src/utils/qrParser.js
-
 export function parseQR(qrData) {
-
-  if (!qrData) {
-    return {
-      merchant: "Unknown",
-      upiId: "",
-      amount: "0",
-      currency: "INR"
-    };
-  }
-
   try {
-
-    // Ensure it is UPI QR
-    if (!qrData.startsWith("upi://")) {
+    if (!qrData) {
       return {
         merchant: "Unknown",
         upiId: "",
-        amount: "0",
-        currency: "INR"
+        amount: 0,
       };
     }
 
-    const queryString = qrData.split("?")[1];
+    // Check if it is UPI format
+    if (qrData.startsWith("upi://")) {
+      const url = new URL(qrData);
 
-    const params = new URLSearchParams(queryString);
+      const merchant = url.searchParams.get("pn") || "Unknown Merchant";
+      const upiId = url.searchParams.get("pa") || "";
+      const amount = Number(url.searchParams.get("am")) || 0;
 
+      return {
+        merchant,
+        upiId,
+        amount,
+      };
+    }
+
+    // If not UPI QR
     return {
-      merchant: params.get("pn") || "Unknown Merchant",
-      upiId: params.get("pa") || "",
-      amount: params.get("am") || "0",
-      currency: params.get("cu") || "INR"
+      merchant: "Unknown",
+      upiId: "",
+      amount: 0,
     };
-
   } catch (error) {
-
-    console.error("QR Parse Error:", error);
+    console.error("QR parse error:", error);
 
     return {
       merchant: "Unknown",
       upiId: "",
-      amount: "0",
-      currency: "INR"
+      amount: 0,
     };
-
   }
-
 }

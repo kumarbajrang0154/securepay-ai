@@ -1,42 +1,54 @@
-import { FraudReport } from '../models/FraudReport.js'
-import { Transaction } from '../models/Transaction.js'
+import FraudReport from '../models/FraudReport.js'
+import Transaction from '../models/Transaction.js'
 import crypto from 'crypto'
 
 export class FraudService {
   /**
    * Report fraudulent QR
    */
-  static async reportFraud(qrData, reason, description, email, ipAddress) {
+  static async reportFraud({
+    qrData,
+    mobile,
+    merchant,
+    upiId,
+    amount,
+    reason,
+    description,
+    reporterEmail,
+    reporterIP,
+  }) {
     try {
-      const qrHash = crypto
-        .createHash('sha256')
-        .update(qrData + Date.now())
-        .digest('hex')
+      const raw = String(qrData || "").trim();
+      const qrHash = crypto.createHash("sha256").update(raw).digest("hex");
 
       const fraudReport = new FraudReport({
         qrHash,
-        qrData,
+        qrData: raw,
+        mobile,
+        merchant,
+        upiId,
+        amount: Number(amount) || 0,
         reason,
         description,
-        reporterEmail: email,
-        reporterIP: ipAddress,
-        status: 'pending',
-      })
+        reporterEmail,
+        reporterIP,
+        status: "pending",
+      });
 
-      await fraudReport.save()
+      await fraudReport.save();
 
-      // Increment report count in transactions
+      // Increment report count in matching transactions
       await Transaction.updateMany(
         { qrHash },
         {
           $inc: { reportCount: 1 },
           $set: { isReported: true },
         }
-      )
+      );
 
-      return fraudReport
+      return fraudReport;
     } catch (error) {
-      throw new Error(`Failed to report fraud: ${error.message}`)
+      throw new Error(`Failed to report fraud: ${error.message}`);
     }
   }
 

@@ -1,28 +1,53 @@
-export function detectFraud(data) {
+// Fraud Detection Engine
 
-  let score = 0;
+function analyzeFraud(data) {
+  let fraudScore = 0;
+  let warnings = [];
 
-  const suspiciousWords = ["gift", "free", "reward", "offer"];
+  const merchant = (data.merchant || "").toLowerCase();
+  const upiId = (data.upiId || "").toLowerCase();
+  const amount = Number(data.amount || 0);
 
-  if (data.merchant) {
+  // Suspicious keywords
+  const suspiciousKeywords = [
+    "gift",
+    "reward",
+    "free",
+    "offer",
+    "bonus",
+    "lottery"
+  ];
 
-    const merchant = data.merchant.toLowerCase();
-
-    suspiciousWords.forEach(word => {
-      if (merchant.includes(word)) {
-        score += 30;
-      }
-    });
-
+  for (const word of suspiciousKeywords) {
+    if (merchant.includes(word)) {
+      fraudScore += 30;
+      warnings.push("Suspicious merchant keyword detected");
+      break;
+    }
   }
 
-  const amount = Number(data.amount);
+  // Suspicious UPI ID
+  if (upiId.includes("scam") || upiId.includes("test")) {
+    fraudScore += 25;
+    warnings.push("Suspicious UPI ID detected");
+  }
 
-  if (amount > 3000) score += 20;
+  // High amount
+  if (amount > 3000) {
+    fraudScore += 20;
+    warnings.push("High payment request");
+  }
 
-  if (amount === 0) score += 10;
+  // Zero amount trick
+  if (amount === 0) {
+    fraudScore += 10;
+    warnings.push("Zero amount request (possible scam)");
+  }
 
   return {
-    fraudScore: score
+    fraudScore,
+    warnings
   };
 }
+
+export default analyzeFraud;

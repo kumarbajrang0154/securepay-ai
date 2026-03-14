@@ -7,32 +7,46 @@ export class FraudController {
    */
   static async reportFraud(req, res) {
     try {
-      const { qrData, reason, description, email } = req.body
-
-      if (!qrData || !reason) {
-        return res.status(400).json({
-          error: 'QR data and reason are required',
-        })
-      }
-
-      const ipAddress = req.ip
-
-      const report = await FraudService.reportFraud(
+      const {
         qrData,
+        mobile,
+        merchant,
+        upiId,
+        amount,
         reason,
         description,
         email,
-        ipAddress
-      )
+      } = req.body;
+
+      if (!qrData || !reason) {
+        return res.status(400).json({
+          success: false,
+          message: "QR data and reason are required",
+        });
+      }
+
+      const ipAddress = req.ip;
+
+      const report = await FraudService.reportFraud({
+        qrData,
+        mobile,
+        merchant,
+        upiId,
+        amount,
+        reason,
+        description,
+        reporterEmail: email,
+        reporterIP: ipAddress,
+      });
 
       res.status(201).json({
         success: true,
-        message: 'Fraud report submitted successfully',
+        message: "Fraud report submitted successfully",
         reportId: report._id,
-      })
+      });
     } catch (error) {
-      console.error('Report error:', error)
-      res.status(500).json({ error: error.message })
+      console.error("Report error:", error);
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 

@@ -1,30 +1,29 @@
-import { Transaction } from '../models/Transaction.js'
-import { FraudReport } from '../models/FraudReport.js'
+import Transaction from '../models/Transaction.js'
+import FraudReport from '../models/FraudReport.js'
 import crypto from 'crypto'
 
 export class TransactionService {
   /**
    * Create transaction record
    */
-  static async createTransaction(analysisData, metadata) {
+  static async createTransaction(analysisData = {}, metadata = {}) {
     try {
-      // Generate QR hash for identification
-      const qrHash = crypto
-        .createHash('sha256')
-        .update(analysisData.upiId + analysisData.merchant + Date.now())
-        .digest('hex')
+      // Generate deterministic QR hash (based on QR payload) for linking reports
+      const raw = String(analysisData.qrData || analysisData.raw || "").trim();
+      const qrHash = crypto.createHash("sha256").update(raw).digest("hex");
 
       const transaction = new Transaction({
         qrHash,
-        upiId: analysisData.upiId,
-        merchant: analysisData.merchant,
-        amount: analysisData.amount,
-        transactionType: analysisData.transactionType,
-        riskLevel: analysisData.riskLevel,
-        riskScore: analysisData.riskScore,
-        riskFactors: analysisData.riskFactors,
+        upiId: analysisData.upiId || "",
+        merchant: analysisData.merchant || "",
+        amount: Number(analysisData.amount) || 0,
+        currency: analysisData.currency || "INR",
+        fraudScore: Number(analysisData.fraudScore ?? analysisData.riskScore) || 0,
+        riskLevel: analysisData.riskLevel || "SAFE",
+        reasons: analysisData.warnings || analysisData.riskFactors || [],
+        raw,
         metadata,
-      })
+      });
 
       await transaction.save()
       return transaction
@@ -76,27 +75,26 @@ export class TransactionService {
   static async getStatistics() {
     try {
       const total = await Transaction.countDocuments()
-      const greenCount = await Transaction.countDocuments({ riskLevel: 'green' })
-      const yellowCount = await Transaction.countDocuments({ riskLevel: 'yellow' })
-      const redCount = await Transaction.countDocuments({ riskLevel: 'red' })
-      const reportedCount = await Transaction.countDocuments({ isReported: true })
+    const safeCount = await Transaction.countDocuments({ riskLevel: 'SAFE' })
+    const suspiciousCount = await Transaction.countDocuments({ riskLevel: 'SUSPICIOUS' })
+    const fraudCount = await Transaction.countDocuments({ riskLevel: 'FRAUD' })
+    const reportedCount = await Transaction.countDocuments({ isReported: true })
 
-      const avgRiskScore = await Transaction.aggregate([
-        {
-          $group: {
-            _id: null,
-            avgScore: { $avg: '$riskScore' },
-          },
+    const avgFraudScore = await Transaction.aggregate([
+      {
+        $group: {
+          _id: null,
+          avgScore: { $avg: '$fraudScore' },
         },
       ])
 
       return {
         totalScanned: total,
-        greenCount,
-        yellowCount,
-        redCount,
+        safeCount,
+        suspiciousCount,
+        fraudCount,
         reportedCount,
-        avgRiskScore: avgRiskScore[0]?.avgScore || 0,
+        avgFraudScore: avgFraudScore[0]?.avgScore || 0,
       }
     } catch (error) {
       throw new Error(`Failed to fetch statistics: ${error.message}`)
