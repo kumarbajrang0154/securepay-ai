@@ -10,22 +10,39 @@ export default function ReportFraudPage() {
   const [reason, setReason] = useState("")
   const [screenshot, setScreenshot] = useState(null)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
 
-    if (!upiId || !reason) {
-      alert("Please fill required details")
-      return
-    }
+const parsed =
+JSON.parse(localStorage.getItem("parsedUPI")) || {};
 
-    alert("Fraud report submitted successfully")
+await fetch(
+"http://localhost:5000/api/report",
+{
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
 
-    setMerchant("")
-    setUpiId("")
-    setAmount("")
-    setReason("")
-    setScreenshot(null)
+mobile: localStorage.getItem("userMobile"),
 
-  }
+merchant: parsed.merchant,
+
+upiId: parsed.upiId,
+
+amount: parsed.amount,
+
+reason,
+
+qrData: localStorage.getItem("scannedQR")
+
+})
+}
+);
+
+alert("Fraud reported successfully");
+
+};
 
   return (
 

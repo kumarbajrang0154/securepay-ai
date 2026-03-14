@@ -1,86 +1,105 @@
-import Navbar from "../components/Navbar";
-import NeuralNetworkBackground from "../components/NeuralNetworkBackground";
-import RiskMeter from "../components/RiskMeter";
+import { useNavigate } from "react-router-dom"
+import Navbar from "../components/Navbar"
+import NeuralNetworkBackground from "../components/NeuralNetworkBackground"
+import RiskMeter from "../components/RiskMeter"
 
 export default function RiskResultPage() {
 
-  const fraudScore =
-    parseInt(localStorage.getItem("fraudScore")) || 0;
+  const navigate = useNavigate()
 
-  const parsedUPI =
-    JSON.parse(localStorage.getItem("parsedUPI")) || {};
+  const fraudScore = Number(localStorage.getItem("fraudScore")) || 0
+  const parsedUPI = JSON.parse(localStorage.getItem("parsedUPI")) || {}
 
-  const getRiskLabel = () => {
-    if (fraudScore < 40) return "SAFE";
-    if (fraudScore < 70) return "SUSPICIOUS";
-    return "HIGH RISK";
-  };
+  const riskLevel =
+    fraudScore > 60 ? "FRAUD" :
+    fraudScore > 30 ? "SUSPICIOUS" :
+    "SAFE"
 
-  const getRiskColor = () => {
-    if (fraudScore < 40) return "text-green-400";
-    if (fraudScore < 70) return "text-yellow-400";
-    return "text-red-400";
-  };
+  const handleReport = () => {
+    navigate("/report-fraud")
+  }
+
+  const handleContinue = () => {
+
+    if(parsedUPI.upiId){
+      window.location.href = `upi://pay?pa=${parsedUPI.upiId}`
+    }
+
+  }
+
+  const handleScanAgain = () => {
+    navigate("/scan")
+  }
+
+  const handleDashboard = () => {
+    navigate("/dashboard")
+  }
 
   return (
+
     <div className="relative min-h-screen text-white">
 
-      <NeuralNetworkBackground />
-      <Navbar />
+      <NeuralNetworkBackground/>
+      <Navbar/>
 
-      <div className="relative z-10 max-w-3xl mx-auto mt-16 px-6">
+      <div className="relative z-10 max-w-xl mx-auto mt-16">
 
-        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-lg">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-lg text-center">
 
-          <h1 className="text-2xl font-bold mb-8 text-center">
+          <h1 className="text-2xl font-bold mb-6">
             QR Fraud Analysis Result
           </h1>
 
-          {/* FRAUD METER */}
+          <RiskMeter score={fraudScore} />
 
-          <div className="flex justify-center mb-8">
-            <RiskMeter score={fraudScore} />
-          </div>
+          <p className="mt-4 text-green-400 font-semibold">
+            Risk Level: {riskLevel}
+          </p>
 
-          {/* RISK LABEL */}
+          <div className="mt-6 bg-black/40 p-4 rounded-lg text-left">
 
-          <div className={`text-center text-lg font-semibold mb-8 ${getRiskColor()}`}>
-            Risk Level: {getRiskLabel()}
-          </div>
-
-          {/* QR DETAILS */}
-
-          <div className="space-y-3 text-gray-300 bg-black/40 p-4 rounded-lg">
-
-            <p><b>Merchant:</b> {parsedUPI.merchant || "Unknown Merchant"}</p>
-
+            <p><b>Merchant:</b> {parsedUPI.merchant || "Unknown"}</p>
             <p><b>UPI ID:</b> {parsedUPI.upiId || "Unknown"}</p>
-
             <p><b>Amount:</b> ₹{parsedUPI.amount || "Not specified"}</p>
-
-            <p><b>Currency:</b> {parsedUPI.currency || "INR"}</p>
+            <p><b>Currency:</b> INR</p>
 
           </div>
 
-          {/* AI MESSAGE */}
-
-          <div className="mt-8 p-4 bg-black/40 rounded-lg text-sm text-gray-300 text-center">
-
-            AI analysis detected unusual payment behavior.  
-            Please verify the merchant before making any payment.
-
+          <div className="mt-6 text-sm text-gray-400">
+            AI analysis detected unusual payment behavior.
+            Please verify the merchant before making payment.
           </div>
 
           {/* ACTION BUTTONS */}
 
-          <div className="mt-8 flex gap-4">
+          <div className="grid grid-cols-2 gap-4 mt-8">
 
-            <button className="flex-1 py-3 bg-red-500 rounded-lg hover:bg-red-600 transition">
+            <button
+              onClick={handleReport}
+              className="py-3 bg-red-500 rounded-lg hover:bg-red-600 transition"
+            >
               Report Fraud
             </button>
 
-            <button className="flex-1 py-3 bg-green-500 rounded-lg hover:bg-green-600 transition">
+            <button
+              onClick={handleContinue}
+              className="py-3 bg-green-500 rounded-lg hover:bg-green-600 transition"
+            >
               Continue Anyway
+            </button>
+
+            <button
+              onClick={handleScanAgain}
+              className="py-3 bg-cyan-500 rounded-lg hover:bg-cyan-600 transition"
+            >
+              Scan Another QR
+            </button>
+
+            <button
+              onClick={handleDashboard}
+              className="py-3 bg-gray-600 rounded-lg hover:bg-gray-700 transition"
+            >
+              Back to Dashboard
             </button>
 
           </div>
@@ -90,5 +109,7 @@ export default function RiskResultPage() {
       </div>
 
     </div>
-  );
+
+  )
+
 }

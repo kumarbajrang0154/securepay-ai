@@ -3,10 +3,12 @@ import { QrReader } from "react-qr-reader";
 import { useNavigate } from "react-router-dom";
 
 export default function Scanner() {
+
   const navigate = useNavigate();
   const [scannedData, setScannedData] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // 🔴 CAMERA CLEANUP WHEN PAGE LEAVES
+  // CAMERA CLEANUP WHEN PAGE LEAVES
   useEffect(() => {
     return () => {
       stopCamera();
@@ -23,17 +25,50 @@ export default function Scanner() {
     }
   };
 
-  const handleScan = (result) => {
-    if (result) {
-      const text = result?.text;
-      setScannedData(text);
+  const handleScan = async (result) => {
 
-      // camera stop after scan
-      stopCamera();
+    if (!result || loading) return;
 
-      // go to analyze page
-      navigate("/analyzing", { state: { qrData: text } });
+    const text = result?.text;
+
+    setScannedData(text);
+    setLoading(true);
+
+    stopCamera();
+
+    try {
+
+      const response = await fetch("http://localhost:5000/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          qrData: text
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+
+        navigate("/result", {
+          state: data.data
+        });
+
+      } else {
+
+        alert("QR analysis failed");
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+      alert("Server error while analyzing QR");
+
     }
+
   };
 
   return (
@@ -42,6 +77,7 @@ export default function Scanner() {
       <h1 className="text-2xl font-bold mb-4">Scan QR Code</h1>
 
       <div className="w-full max-w-md border-2 border-cyan-500 rounded-xl overflow-hidden">
+
         <QrReader
           constraints={{ facingMode: "environment" }}
           onResult={(result, error) => {
@@ -50,7 +86,12 @@ export default function Scanner() {
           containerStyle={{ width: "100%" }}
           videoStyle={{ width: "100%" }}
         />
+
       </div>
+
+      {loading && (
+        <p className="mt-4 text-cyan-400">Analyzing QR with SecurePay AI...</p>
+      )}
 
       {/* Back Button */}
       <button
@@ -62,6 +103,7 @@ export default function Scanner() {
       >
         Back to Dashboard
       </button>
+
     </div>
   );
 }

@@ -16,6 +16,8 @@ export default function QRScannerPage() {
   const [manualQR, setManualQR] = useState("");
   const [torch, setTorch] = useState(false);
 
+  const [capturedQR, setCapturedQR] = useState("");
+
   const processQR = (qrText) => {
 
     const parsed = parseUPI(qrText);
@@ -46,15 +48,22 @@ export default function QRScannerPage() {
 
   const handleScan = (data) => {
 
-    if (data) {
+    if (!data) return;
 
-      const qrText = data.text;
+    const qrText = data.text;
 
-      setResult(qrText);
+    if (!qrText) return;
 
-      processQR(qrText);
+    setResult(qrText);
+    setCapturedQR(qrText);
 
-    }
+  };
+
+  const handleAnalyze = () => {
+
+    if (!capturedQR) return;
+
+    processQR(capturedQR);
 
   };
 
@@ -74,8 +83,6 @@ export default function QRScannerPage() {
 
       <div className="relative z-10 max-w-3xl mx-auto mt-12 px-6">
 
-        {/* AI STATUS */}
-
         <div className="bg-green-500/10 border border-green-500 rounded-lg p-3 text-sm mb-6 text-green-400 text-center">
 
           🛡 AI Protection Active • Fraud Detection Enabled
@@ -88,15 +95,13 @@ export default function QRScannerPage() {
             Scan Payment QR Code
           </h1>
 
-          {/* CAMERA SCANNER */}
-
           <div className="relative rounded-xl overflow-hidden">
 
             <QrReader
               constraints={{
-                facingMode: "environment",
-                advanced: [{ torch }]
+                facingMode: "environment"
               }}
+              scanDelay={500}
               onResult={(result, error) => {
 
                 if (!!result) {
@@ -106,8 +111,6 @@ export default function QRScannerPage() {
               }}
               style={{ width: "100%" }}
             />
-
-            {/* SCAN FRAME */}
 
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
 
@@ -142,6 +145,19 @@ export default function QRScannerPage() {
 
           )}
 
+          {/* ANALYZE BUTTON */}
+
+          {capturedQR && (
+
+            <button
+              onClick={handleAnalyze}
+              className="mt-4 w-full py-3 bg-cyan-500 rounded-lg hover:bg-cyan-600 transition"
+            >
+              Scan & Analyze QR
+            </button>
+
+          )}
+
           {/* MANUAL INPUT */}
 
           <div className="mt-8">
@@ -153,7 +169,7 @@ export default function QRScannerPage() {
             <input
               value={manualQR}
               onChange={(e) => setManualQR(e.target.value)}
-              placeholder="upi://pay?..."
+              placeholder="upi://pay?... "
               className="w-full p-2 rounded bg-black/40 border border-white/10"
             />
 

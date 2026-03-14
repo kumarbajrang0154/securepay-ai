@@ -1,62 +1,52 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema(
   {
-    qrHash: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    upiId: {
-      type: String,
-      required: true,
-    },
     merchant: {
       type: String,
-      required: true,
+      required: true
     },
-    amount: {
-      type: Number,
-      required: true,
-    },
-    transactionType: {
+
+    upiId: {
       type: String,
-      enum: ['payment', 'request', 'transfer'],
-      default: 'payment',
+      required: true
     },
+
+    amount: {
+      type: String,
+      default: "0"
+    },
+
+    currency: {
+      type: String,
+      default: "INR"
+    },
+
+    fraudScore: {
+      type: Number,
+      default: 0
+    },
+
     riskLevel: {
       type: String,
-      enum: ['green', 'yellow', 'red'],
-      default: 'green',
+      enum: ["SAFE", "SUSPICIOUS", "FRAUD"],
+      default: "SAFE"
     },
-    riskScore: {
-      type: Number,
-      min: 0,
-      max: 1,
+
+    reasons: {
+      type: [String],
+      default: []
     },
-    riskFactors: [String],
-    isReported: {
-      type: Boolean,
-      default: false,
-    },
-    reportCount: {
-      type: Number,
-      default: 0,
-    },
-    metadata: {
-      userAgent: String,
-      ipAddress: String,
-      location: String,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      index: true,
-    },
+
+    raw: {
+      type: String
+    }
   },
   {
-    timestamps: true,
+    timestamps: true
   }
-)
+);
 
-export const Transaction = mongoose.model('Transaction', transactionSchema)
+const Transaction = mongoose.model("Transaction", transactionSchema);
+
+export default Transaction;

@@ -1,38 +1,44 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const fraudReportSchema = new mongoose.Schema(
-  {
-    qrHash: {
-      type: String,
-      required: true,
-    },
-    qrData: {
-      type: String,
-      required: true,
-    },
-    reason: {
-      type: String,
-      enum: ['phishing', 'malware', 'money_fraud', 'identity_theft', 'other'],
-      required: true,
-    },
-    description: String,
-    reporterEmail: String,
-    reporterIP: String,
-    status: {
-      type: String,
-      enum: ['pending', 'verified', 'false_positive', 'unresolved'],
-      default: 'pending',
-    },
-    verificationNotes: String,
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      index: true,
-    },
-  },
-  {
-    timestamps: true,
-  }
-)
+const fraudReportSchema = new mongoose.Schema({
 
-export const FraudReport = mongoose.model('FraudReport', fraudReportSchema)
+mobile: {
+type: String,
+required: true
+},
+
+merchant: {
+type: String,
+required: true
+},
+
+upiId: {
+type: String,
+required: true
+},
+
+amount: {
+type: Number,
+default: 0
+},
+
+reason: {
+type: String,
+required: true
+},
+
+qrData: {
+type: String
+},
+
+reportedAt: {
+type: Date,
+default: Date.now
+}
+
+});
+
+export default mongoose.model(
+"FraudReport",
+fraudReportSchema
+);

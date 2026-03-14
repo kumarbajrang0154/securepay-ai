@@ -1,31 +1,50 @@
-export function analyzeQR(qrString) {
+export function analyzeQR(qrData){
 
-  let score = 0;
+let score = 0
 
-  // suspicious keywords
-  const suspiciousWords = ["test", "scam", "fraud", "unknown"];
+const text = qrData.toLowerCase()
 
-  suspiciousWords.forEach(word => {
-    if (qrString.toLowerCase().includes(word)) {
-      score += 40;
-    }
-  });
+// suspicious words
+const suspicious = [
+"test",
+"fraud",
+"scam",
+"reward",
+"gift",
+"free",
+"offer"
+]
 
-  // high amount detection
-  const amountMatch = qrString.match(/am=([0-9]+)/);
+suspicious.forEach(word=>{
 
-  if (amountMatch) {
-    const amount = parseInt(amountMatch[1]);
+if(text.includes(word)){
 
-    if (amount > 2000) score += 30;
-  }
+score += 30
 
-  // unknown merchant detection
-  if (!qrString.includes("pn=")) {
-    score += 20;
-  }
+}
 
-  if (score > 100) score = 100;
+})
 
-  return score;
+// non UPI format
+if(!text.includes("upi://pay")){
+
+score += 50
+
+}
+
+// suspicious amount
+if(text.includes("am=0")){
+
+score += 20
+
+}
+
+if(score > 100){
+
+score = 100
+
+}
+
+return score
+
 }

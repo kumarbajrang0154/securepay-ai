@@ -1,52 +1,80 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Navbar from "../components/Navbar";
-import NeuralNetworkBackground from "../components/NeuralNetworkBackground";
+export default function AnalyzingPage(){
 
-export default function AnalyzingPage() {
+const navigate = useNavigate();
 
-  const navigate = useNavigate();
+useEffect(()=>{
 
-  useEffect(() => {
+const qrData = localStorage.getItem("scannedQR");
 
-    const timer = setTimeout(() => {
-      navigate("/result");
-    }, 3000);
+if(!qrData){
+navigate("/dashboard");
+return;
+}
 
-    return () => clearTimeout(timer);
+async function analyze(){
 
-  }, []);
+try{
 
-  return (
-    <div className="relative min-h-screen text-white">
+const res = await fetch(
+"http://localhost:5000/api/analyze",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({qrData})
+}
+);
 
-      <NeuralNetworkBackground />
-      <Navbar />
+if(!res.ok){
+throw new Error("API request failed");
+}
 
-      <div className="relative z-10 flex flex-col items-center justify-center mt-40">
+const data = await res.json();
 
-        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-10 w-[400px] text-center">
+// store fraud score
+localStorage.setItem("fraudScore", data.fraudScore || 0);
 
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto mb-6"></div>
+// store parsed UPI data
+localStorage.setItem(
+"parsedUPI",
+JSON.stringify({
+merchant:data.merchant || "Unknown",
+upiId:data.upiId || "",
+amount:data.amount || "0"
+})
+);
 
-          <h2 className="text-xl font-semibold mb-4">
-            AI Fraud Analysis Running
-          </h2>
+navigate("/result");
 
-          <div className="space-y-2 text-gray-300 text-sm">
+}catch(err){
 
-            <p>Scanning QR data...</p>
-            <p>Analyzing merchant reputation...</p>
-            <p>Checking fraud patterns...</p>
-            <p>Calculating fraud probability...</p>
+console.error("Analyze error:", err);
 
-          </div>
+// show real message
+alert("Error analyzing QR. Check backend or console.");
 
-        </div>
+navigate("/dashboard");
 
-      </div>
+}
 
-    </div>
-  );
+}
+
+analyze();
+
+},[]);
+
+return(
+
+<div className="flex items-center justify-center h-screen text-white">
+
+<h2>Analyzing QR with AI...</h2>
+
+</div>
+
+);
+
 }

@@ -12,6 +12,7 @@ import EditProfilePage from "./pages/EditProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import AnalyzingPage from "./pages/AnalyzingPage";
 import MyReportsPage from "./pages/MyReportsPage"
+import Report from "./pages/Report";
 
 function App() {
   return (
@@ -55,6 +56,10 @@ function App() {
         <Route path="*" element={<LoginPage />} />
 
         <Route path="/my-fraud" element={<MyReportsPage />} />
+
+        <Route path="/report" element={<Report />} />
+
+        <Route path="/report-fraud" element={<ReportFraudPage />} />
 
       </Routes>
     </BrowserRouter>

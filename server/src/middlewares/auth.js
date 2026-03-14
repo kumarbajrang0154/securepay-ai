@@ -1,68 +1,50 @@
-/**
- * Authentication Middleware
- * Verify JWT tokens and protect routes
- */
+import express from "express";
 
-import jwt from 'jsonwebtoken'
-import { config } from '../config/constants.js'
+const router = express.Router();
 
-export const authMiddleware = (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1]
+let otpStore = {};
 
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' })
-    }
+// SEND OTP
+router.post("/send-otp", (req, res) => {
+  const { mobile } = req.body;
 
-    const decoded = jwt.verify(token, config.jwtSecret)
-    req.user = decoded
-    next()
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token' })
+  if (!mobile || mobile.length !== 10) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid mobile number",
+    });
   }
-}
 
-/**
- * Role-based Authorization
- */
-export const requireRole = (role) => {
-  return (req, res, next) => {
-    if (req.user?.role !== role) {
-      return res.status(403).json({ error: 'Insufficient permissions' })
-    }
-    next()
+  const otp = Math.floor(100000 + Math.random() * 900000);
+
+  otpStore[mobile] = otp;
+
+  console.log("Generated OTP:", otp);
+
+  res.json({
+    success: true,
+    message: "OTP sent successfully",
+  });
+});
+
+// VERIFY OTP
+router.post("/verify-otp", (req, res) => {
+  const { mobile, otp } = req.body;
+
+  if (otpStore[mobile] == otp) {
+    delete otpStore[mobile];
+
+    return res.json({
+      success: true,
+      token: "securepay-demo-token",
+      user: { mobile },
+    });
   }
-}
 
-/**
- * Rate Limiting Middleware (simple)
- */
-const requestCounts = new Map()
+  res.status(400).json({
+    success: false,
+    message: "Invalid OTP",
+  });
+});
 
-export const rateLimitMiddleware = (limit = 100, window = 15 * 60 * 1000) => {
-  return (req, res, next) => {
-    const key = req.ip
-    const now = Date.now()
-
-    if (!requestCounts.has(key)) {
-      requestCounts.set(key, [])
-    }
-
-    let requests = requestCounts.get(key)
-    requests = requests.filter(timestamp => now - timestamp < window)
-
-    if (requests.length >= limit) {
-      return res.status(429).json({ error: 'Too many requests' })
-    }
-
-    requests.push(now)
-    requestCounts.set(key, requests)
-    next()
-  }
-}
-
-export default {
-  authMiddleware,
-  requireRole,
-  rateLimitMiddleware,
-}
+export default router;
