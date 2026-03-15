@@ -78,7 +78,7 @@ class AIFraudService {
       if (!this.isConnected) {
         const connected = await this.checkConnection();
         if (!connected) {
-          console.warn('AI Service unavailable, falling back to rule-based detection');
+          console.warn('AI Service unavailable (Python not installed), falling back to rule-based detection');
           return null;
         }
       }

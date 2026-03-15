@@ -24,46 +24,62 @@ export function predictFraud(features) {
     upiRisk = 0
   } = features;
 
-  // Base fraud score starts at 0.1 (10% base suspicion)
-  let fraudScore = 0.1;
+  // Base fraud score starts at 0.05 (5% base suspicion for any transaction)
+  let fraudScore = 0.05;
 
-  // Amount-based risk (higher amounts increase risk)
-  if (amount > 5000) {
+  // Amount-based risk assessment
+  if (amount > 10000) {
+    fraudScore += 0.35; // Very high amount risk
+  } else if (amount > 5000) {
     fraudScore += 0.25; // High amount risk
-  } else if (amount > 1000) {
+  } else if (amount > 2000) {
     fraudScore += 0.15; // Medium amount risk
+  } else if (amount > 1000) {
+    fraudScore += 0.08; // Low-medium amount risk
+  } else if (amount <= 0) {
+    fraudScore += 0.4; // Zero or negative amount is highly suspicious
   }
 
-  // Community reports (each report adds risk)
-  fraudScore += Math.min(communityReports * 0.08, 0.3); // Max 30% from community
+  // Community reports (each report adds significant risk)
+  fraudScore += Math.min(communityReports * 0.12, 0.4); // Max 40% from community reports
 
-  // Previously reported (significant risk factor)
+  // Previously reported (strong indicator)
   if (previouslyReported) {
-    fraudScore += 0.25;
+    fraudScore += 0.3;
   }
 
-  // Blacklisted UPI (very high risk)
+  // Blacklisted UPI (very high risk - almost certain fraud)
   if (isBlacklisted) {
-    fraudScore += 0.4;
+    fraudScore += 0.5;
   }
 
-  // Keyword risk (suspicious keywords detected)
+  // Keyword risk (suspicious merchant names)
   if (keywordRisk) {
     fraudScore += 0.2;
   }
 
-  // UPI risk score (direct risk assessment)
-  fraudScore += upiRisk * 0.15;
+  // UPI risk score (direct risk assessment from patterns)
+  fraudScore += upiRisk * 0.2;
 
-  // Additional factors for sophisticated fraud patterns
+  // Compound risk factors
   // High amount + community reports = higher risk
-  if (amount > 1000 && communityReports > 2) {
+  if (amount > 2000 && communityReports > 1) {
     fraudScore += 0.1;
   }
 
   // Blacklisted + previously reported = maximum risk
   if (isBlacklisted && previouslyReported) {
-    fraudScore += 0.1;
+    fraudScore += 0.15;
+  }
+
+  // Keyword risk + high amount = increased suspicion
+  if (keywordRisk && amount > 1000) {
+    fraudScore += 0.08;
+  }
+
+  // Zero amount + suspicious keywords = very high risk
+  if (amount <= 0 && keywordRisk) {
+    fraudScore += 0.2;
   }
 
   // Ensure probability stays within 0-1 bounds
@@ -78,9 +94,9 @@ export function predictFraud(features) {
 export function getRiskLevel(probability) {
   const fraudScore = probability * 100;
 
-  if (fraudScore < 30) {
+  if (fraudScore < 40) {
     return 'SAFE';
-  } else if (fraudScore <= 60) {
+  } else if (fraudScore < 70) {
     return 'SUSPICIOUS';
   } else {
     return 'FRAUD';

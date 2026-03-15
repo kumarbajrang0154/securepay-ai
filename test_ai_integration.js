@@ -24,7 +24,7 @@ const testCases = [
 
 async function testEndpoint(qrData) {
   try {
-    const response = await fetch('http://localhost:5000/api/analyze', {
+    const response = await fetch('http://localhost:5001/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ qrData })
@@ -55,8 +55,11 @@ async function runTests() {
     } else {
       console.log(`   ✅ Risk Level: ${result.riskLevel} (Expected: ${testCase.expectedRisk})`);
       console.log(`   📊 Fraud Score: ${result.fraudScore}`);
-      console.log(`   🎯 Probability: ${(result.fraudProbability * 100).toFixed(1)}%`);
+      console.log(`   🤖 AI Probability: ${(result.fraudProbability * 100).toFixed(1)}%`);
+      console.log(`   📏 Rule Score: ${(result.ruleScore * 100).toFixed(1)}%`);
+      console.log(`   🎯 Final Probability: ${(result.finalProbability * 100).toFixed(1)}%`);
       console.log(`   ⚠️  Warnings: ${result.warnings.length}`);
+      console.log(`   🔧 AI Used: ${result.aiUsed ? 'Yes' : 'No (Fallback)'}`);
 
       if (result.warnings.length > 0) {
         result.warnings.forEach(warning => console.log(`      - ${warning}`));

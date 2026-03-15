@@ -13,20 +13,28 @@ import {
 
 export const analyzeQR = async (req, res) => {
   try {
+    console.log("🔍 Starting QR analysis...");
+
     const { qrData, mobile } = req.body;
 
     if (!qrData) {
+      console.warn("⚠️ No QR data provided");
       return res.status(400).json({
         message: "QR data is required",
       });
     }
 
+    console.log("📱 QR data received, parsing...");
+
     // Step 1: Parse QR
     const parsedData = parseQR(qrData);
+    console.log("✅ QR parsed:", parsedData);
 
     const merchant = parsedData.merchant || "Unknown Merchant";
     const upiId = parsedData.upiId || "";
     const amount = parsedData.amount || 0;
+
+    console.log(`💰 Analyzing: ${merchant} - ${upiId} - ₹${amount}`);
 
     // Step 2: Check community fraud reports and gather features for AI model
     let communityReports = 0;
@@ -75,14 +83,17 @@ export const analyzeQR = async (req, res) => {
     const {
       fraudScore,
       fraudProbability,
+      ruleScore,
+      finalProbability,
       riskLevel,
       warnings,
-      features
+      features,
+      aiUsed
     } = analysisResult;
 
     // Step 6: Generate smart warnings combining all factors
     const smartWarnings = generateSmartWarnings({
-      fraudProbability,
+      fraudProbability: finalProbability, // Use final probability for warnings
       communityReports,
       isBlacklisted,
       riskLevel
@@ -97,7 +108,9 @@ export const analyzeQR = async (req, res) => {
       upiId,
       amount,
       fraudScore,
-      fraudProbability,
+      fraudProbability, // Original AI probability
+      ruleScore,        // New: Rule-based score
+      finalProbability, // New: Combined final probability
       riskLevel,
       communityReports,
       previouslyReported,
@@ -109,7 +122,8 @@ export const analyzeQR = async (req, res) => {
         completionRate: behaviorStats.completionRate,
         totalScans: behaviorStats.totalScans
       },
-      aiFeatures: features // Include AI model features for transparency
+      aiFeatures: features, // Include AI model features for transparency
+      aiUsed              // New: Indicates if real AI was used vs fallback
     });
 
     // Step 7: Store transaction record (non-blocking)
