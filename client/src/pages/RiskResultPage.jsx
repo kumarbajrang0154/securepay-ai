@@ -1,32 +1,60 @@
 import { useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
 import Navbar from "../components/Navbar"
 import NeuralNetworkBackground from "../components/NeuralNetworkBackground"
 import RiskMeter from "../components/RiskMeter"
+import UPIAppPicker from "../components/UPIAppPicker"
+import SmartWarningCard from "../components/SmartWarningCard"
 
 export default function RiskResultPage() {
 
   const navigate = useNavigate()
+  const [showAppPicker, setShowAppPicker] = useState(false)
 
   const fraudScore = Number(localStorage.getItem("fraudScore")) || 0
   const parsedUPI = JSON.parse(localStorage.getItem("parsedUPI")) || {}
   const communityReports = Number(localStorage.getItem("communityReports")) || 0
-  const sameUserWarning = localStorage.getItem("sameUserWarning") === "true"
+  const previouslyReported = localStorage.getItem("previouslyReported") === "true"
+  const isBlacklisted = localStorage.getItem("isBlacklisted") === "true"
+  const storedRiskLevel = localStorage.getItem("riskLevel")
+  const warnings = JSON.parse(localStorage.getItem("warnings")) || []
+  const behaviorStats = JSON.parse(localStorage.getItem("behaviorStats")) || {}
 
-  const riskLevel =
+  const riskLevel = storedRiskLevel || (
     fraudScore > 60 ? "FRAUD" :
     fraudScore > 30 ? "SUSPICIOUS" :
     "SAFE"
+  )
 
   const handleReport = () => {
     navigate("/report-fraud")
   }
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Track payment attempt
+    const mobile = localStorage.getItem("mobile") || "+919876543210"; // Default for demo
 
-    if(parsedUPI.upiId){
-      window.location.href = `upi://pay?pa=${parsedUPI.upiId}`
+    try {
+      const response = await fetch('http://localhost:5001/api/track-payment-attempt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mobile,
+          upiId: parsedUPI.upiId
+        })
+      });
+
+      if (response.ok) {
+        console.log("Payment attempt tracked successfully");
+      }
+    } catch (error) {
+      console.error("Failed to track payment attempt:", error);
     }
 
+    // Open app picker
+    setShowAppPicker(true);
   }
 
   const handleScanAgain = () => {
@@ -52,18 +80,33 @@ export default function RiskResultPage() {
             QR Fraud Analysis Result
           </h1>
 
-          <RiskMeter score={fraudScore} />
-
-          {communityReports > 0 && (
-            <div className="mt-4 bg-yellow-500/10 border border-yellow-500 rounded-lg p-3 text-yellow-400 text-center">
-              ⚠ COMMUNITY FRAUD ALERT<br />
-              Reported by {communityReports} SecurePay AI users
+          {isBlacklisted && (
+            <div className="mt-4 bg-red-500/20 border-2 border-red-500 rounded-lg p-4 text-red-400 text-center mb-4">
+              <div className="text-2xl font-bold mb-2">🚫 BLACKLISTED UPI</div>
+              <div>This merchant has been reported by many SecurePay AI users and is considered highly dangerous.</div>
             </div>
           )}
 
-          {sameUserWarning && (
+          {previouslyReported && (
             <div className="mt-4 bg-orange-500/10 border border-orange-500 rounded-lg p-3 text-orange-400 text-center">
               ⚠ You previously reported this QR as fraud.
+            </div>
+          )}
+
+          <RiskMeter score={fraudScore} />
+
+          {/* Smart Warning Card */}
+          <SmartWarningCard
+            warnings={warnings}
+            behaviorStats={behaviorStats}
+            fraudScore={fraudScore}
+            riskLevel={riskLevel}
+          />
+
+          {communityReports >= 3 && (
+            <div className="mt-4 bg-yellow-500/10 border border-yellow-500 rounded-lg p-3 text-yellow-400 text-center">
+              ⚠ COMMUNITY FRAUD ALERT<br />
+              This UPI ID has been reported by {communityReports} SecurePay AI users.
             </div>
           )}
 
@@ -98,7 +141,7 @@ export default function RiskResultPage() {
 
             <button
               onClick={handleContinue}
-              className="py-3 bg-green-500 rounded-lg hover:bg-green-600 transition"
+              className="py-3 bg-green-500 rounded-lg hover:bg-green-600 transition font-semibold"
             >
               Continue Anyway
             </button>
@@ -122,6 +165,16 @@ export default function RiskResultPage() {
         </div>
 
       </div>
+
+      {/* UPI App Picker Modal */}
+      {showAppPicker && (
+        <UPIAppPicker
+          upiId={parsedUPI.upiId}
+          merchant={parsedUPI.merchant}
+          amount={parsedUPI.amount}
+          onClose={() => setShowAppPicker(false)}
+        />
+      )}
 
     </div>
 

@@ -13,6 +13,7 @@ export default function ReportFraudPage() {
   const [amount, setAmount] = useState(parsed.amount || "")
   const [reason, setReason] = useState("")
   const [screenshot, setScreenshot] = useState(null)
+  const [previouslyReported, setPreviouslyReported] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -31,6 +32,10 @@ export default function ReportFraudPage() {
       window.location.href = "/dashboard";
       return;
     }
+
+    // Show badge if previously reported by this user
+    const prev = localStorage.getItem("previouslyReported") === "true";
+    setPreviouslyReported(prev);
   }, [])
 
   const handleSubmit = async () => {
@@ -95,6 +100,12 @@ export default function ReportFraudPage() {
         </h1>
 
         {/* WARNING PANEL */}
+
+        {previouslyReported && (
+          <div className="bg-orange-500/10 border border-orange-500 rounded-lg p-3 text-sm mb-6 text-orange-400">
+            ⚠ You previously reported this QR as fraud.
+          </div>
+        )}
 
         <div className="bg-red-500/10 border border-red-500 rounded-lg p-3 text-sm mb-6 text-red-400">
 

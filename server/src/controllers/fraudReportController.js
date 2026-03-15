@@ -48,13 +48,18 @@ export const reportFraud = async (req, res) => {
     if (existingStats) {
       existingStats.reports += 1;
       existingStats.lastReported = new Date();
+      // Check if should be blacklisted
+      if (existingStats.reports >= 10) {
+        existingStats.isBlacklisted = true;
+      }
       await existingStats.save();
-      console.log("Updated existing FraudStats for upiId:", upiId);
+      console.log("Updated existing FraudStats for upiId:", upiId, "reports:", existingStats.reports, "blacklisted:", existingStats.isBlacklisted);
     } else {
       await FraudStats.create({
         upiId,
         merchant,
         reports: 1,
+        isBlacklisted: false, // New reports start as not blacklisted
       });
       console.log("Created new FraudStats for upiId:", upiId);
     }

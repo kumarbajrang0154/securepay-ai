@@ -19,10 +19,18 @@ async function analyze(){
 
 try{
 
-const data = await analyzeQR(qrData);
+const mobile = localStorage.getItem("userMobile") || "";
+if (!mobile) {
+  alert("Please login first");
+  navigate("/login");
+  return;
+}
+
+const data = await analyzeQR(qrData, mobile);
 
 // store fraud score
 localStorage.setItem("fraudScore", data.fraudScore || 0);
+localStorage.setItem("riskLevel", data.riskLevel || "SAFE");
 
 // store parsed UPI data
 localStorage.setItem(
@@ -36,7 +44,12 @@ amount:data.amount || "0"
 
 // store community data
 localStorage.setItem("communityReports", data.communityReports || 0);
-localStorage.setItem("sameUserWarning", data.sameUserWarning ? "true" : "false");
+localStorage.setItem("previouslyReported", data.previouslyReported ? "true" : "false");
+localStorage.setItem("isBlacklisted", data.isBlacklisted ? "true" : "false");
+
+// store warnings and behavior stats
+localStorage.setItem("warnings", JSON.stringify(data.warnings || []));
+localStorage.setItem("behaviorStats", JSON.stringify(data.behaviorStats || {}));
 
 navigate("/result");
 

@@ -2,66 +2,61 @@
 
 const transactionSchema = new mongoose.Schema(
   {
-    qrHash: {
+    mobile: {
       type: String,
       required: true,
-      index: true,
     },
-
     merchant: {
       type: String,
-      default: "Unknown Merchant",
+      required: true,
     },
-
     upiId: {
       type: String,
-      default: "",
+      required: true,
     },
-
     amount: {
       type: Number,
+      required: true,
       default: 0,
     },
-
-    currency: {
-      type: String,
-      default: "INR",
-    },
-
     fraudScore: {
+      type: Number,
+      required: true,
+    },
+    fraudProbability: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 1,
+    },
+    riskLevel: {
+      type: String,
+      required: true,
+      enum: ["SAFE", "SUSPICIOUS", "FRAUD"],
+    },
+    communityReports: {
       type: Number,
       default: 0,
     },
-
-    riskLevel: {
-      type: String,
-      enum: ["SAFE", "SUSPICIOUS", "FRAUD"],
-      default: "SAFE",
-    },
-
-    reasons: {
-      type: [String],
-      default: [],
-    },
-
-    raw: {
-      type: String,
-      default: "",
-    },
-
-    isReported: {
+    previouslyReported: {
       type: Boolean,
       default: false,
     },
-
-    reportCount: {
-      type: Number,
-      default: 0,
+    scannedAt: {
+      type: Date,
+      default: Date.now,
     },
-
-    metadata: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {},
+    paymentAttempted: {
+      type: Boolean,
+      default: false,
+    },
+    paymentCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    paymentCancelled: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -69,6 +64,4 @@ const transactionSchema = new mongoose.Schema(
   }
 );
 
-const Transaction = mongoose.model("Transaction", transactionSchema);
-
-export default Transaction;
+export default mongoose.model("Transaction", transactionSchema, "Transactions");

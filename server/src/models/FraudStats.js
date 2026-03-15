@@ -17,6 +17,10 @@ const fraudStatsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  isBlacklisted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const FraudStats = mongoose.model("FraudStats", fraudStatsSchema);
